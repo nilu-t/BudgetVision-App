@@ -220,11 +220,32 @@ public class BudgetVisionTests {
         /*
          * Now getting the status of all the subcategories.
          */
-        String expectedStatus15 = "Food: {Groceries $60.49, Bakeries $26.57, Seafood $126.57, Candies $56.27, Restaurants $53.25, Pastries $33.52, Sushi $21.24, Cake & Deserts $32.34, Drinks & Beverages $61.52, Milk $10.24}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {}";
+        String expectedStatus15 = "Food:\n" +
+                "Groceries            $60.49,\n" +
+                "Bakeries             $26.57,\n" +
+                "Seafood              $126.57,\n" +
+                "Candies              $56.27,\n" +
+                "Restaurants          $53.25,\n" +
+                "Pastries             $33.52,\n" +
+                "Sushi                $21.24,\n" +
+                "Cake & Deserts       $32.34,\n" +
+                "Drinks & Beverages   $61.52,\n" +
+                "Milk                 $10.24\n" +
+                "\n" +
+                "\n" +
+                "Housing:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Commute:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus15,Food.getStatus());
         assertArrayEquals(expectedNames15,Food.getFood());
 
@@ -304,54 +325,125 @@ public class BudgetVisionTests {
         //adding the transportation subcategories again.
         //adding the uber subcategory.
         Commute.addSubCategory("Commute","Uber",92.43);
-        String expectedStatus1A = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {Uber $92.43}"+
-                "\n\nRecreation: {}";
+        String expectedStatus1A = "Food:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Housing:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Commute:" +
+                "\n" +
+                "Uber                 $92.43\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus1A,Commute.getStatus());
 
         //add another $47.27 for uber expense.
         Commute.addExpense(47.27,"Uber", "Commute");
-        String expectedStatus1B = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {Uber $139.70}"+
-                "\n\nRecreation: {}";
+        String expectedStatus1B = "Food:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Housing:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Commute:" +
+                "\n" +
+                "Uber                 $139.70\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus1B,Commute.getStatus());
 
         //add another $83.48 for uber expense.
         Commute.addExpense(83.48,"Uber", "Commute");
-        String expectedStatus1C = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {Uber $223.18}"+
-                "\n\nRecreation: {}";
+        String expectedStatus1C = "Food:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Housing:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Commute:" +
+                "\n" +
+                "Uber                 $223.18\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus1C,Commute.getStatus());
 
         Commute.addSubCategory("Commute", "Taxi", 45.19);
-        String expectedStatus2 = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {Uber $223.18, Taxi $45.19}"+
-                "\n\nRecreation: {}";
+        String expectedStatus2 ="Food:\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "Uber                 $223.18,\n" +
+                "Taxi                 $45.19\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus2,Commute.getStatus());
 
         Commute.addSubCategory("Commute","Plane Tickets",831.32);
-        String expectedStatus3 = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {Uber $223.18, Taxi $45.19, Plane Tickets $831.32}"+
-                "\n\nRecreation: {}";
+        String expectedStatus3 = "Food:\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "Uber                 $223.18,\n" +
+                "Taxi                 $45.19,\n" +
+                "Plane Tickets        $831.32\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus3,Commute.getStatus());
 
         //add another $68.29 expense to taxi.
         Commute.addExpense(68.29,"Taxi", "Commute");
-        String expectedStatus4 = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {Uber $223.18, Taxi $113.48, Plane Tickets $831.32}"+
-                "\n\nRecreation: {}";
+        String expectedStatus4 = "Food:\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "Uber                 $223.18,\n" +
+                "Taxi                 $113.48,\n" +
+                "Plane Tickets        $831.32\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus4,Commute.getStatus());
 
 //        //adding a duplicate subcategory results in error message when getting the status.
@@ -361,11 +453,23 @@ public class BudgetVisionTests {
 
         //adding a new subcategory
         Commute.addSubCategory("Commute","Subway", 34.39);
-        String expectedStatus5 = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {Uber $223.18, Taxi $113.48, Plane Tickets $831.32, Subway $34.39}"+
-                "\n\nRecreation: {}";
+        String expectedStatus5 = "Food:\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "Uber                 $223.18,\n" +
+                "Taxi                 $113.48,\n" +
+                "Plane Tickets        $831.32,\n" +
+                "Subway               $34.39\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus5, Commute.getStatus());
 
     }
@@ -386,11 +490,23 @@ public class BudgetVisionTests {
         Nilushanth.addUserSubcategory("Hulu", 49.37);
         Nilushanth.addUserSubcategory("Video games", 52.57);
 
-        String expectedStatus = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {Netflix Subscription $20.48, Hulu $49.37, Video games $52.57, TV $120.24}";
+        String expectedStatus = "Food:\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "\n" +
+                "\n" +
+                "Recreation:\n" +
+                "Netflix Subscription $20.48,\n" +
+                "TV                   $120.24,\n" +
+                "Hulu                 $49.37,\n" +
+                "Video games          $52.57";
         Nilushanth.sortAllSubcategoriesByExpense("Ascending","Recreation"); //sorting entertainment category in ascending order.
         assertEquals(expectedStatus,Nilushanth.getUserStatus());
 
@@ -402,11 +518,27 @@ public class BudgetVisionTests {
 
         Nilushanth.sortAllSubcategoriesByExpense("Ascending","Food"); //sorting food category in ascending order.
 
-        String expectedStatus2 = "Food: {Sea food $31.43, Pastries $42.51, Groceries $120.48, Fast food $123.32}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {Netflix Subscription $20.48, Hulu $49.37, Video games $52.57, TV $120.24}";
+        String expectedStatus2 = "Food:\n" +
+                "Groceries            $120.48,\n" +
+                "Pastries             $42.51,\n" +
+                "Fast food            $123.32,\n" +
+                "Sea food             $31.43\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "\n" +
+                "\n" +
+                "Recreation:\n" +
+                "Netflix Subscription $20.48,\n" +
+                "TV                   $120.24,\n" +
+                "Hulu                 $49.37,\n" +
+                "Video games          $52.57";
         assertEquals(expectedStatus2,Nilushanth.getUserStatus());
 
         Nilushanth.addUserCategory("Lifestyle"); //food category is used to store the subcategories.
@@ -417,11 +549,31 @@ public class BudgetVisionTests {
 
         Nilushanth.sortAllSubcategoriesByExpense("Ascending","Lifestyle"); //sorting all the categories again in ascending order.
 
-        String expectedStatus3 = "Food: {Sea food $31.43, Pastries $42.51, Groceries $120.48, Fast food $123.32}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {Gym $50.48, Eye doctor $70.51, Doctor $213.34, Dentist $1532.43}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {Netflix Subscription $20.48, Hulu $49.37, Video games $52.57, TV $120.24}";
+        String expectedStatus3 = "Food:\n" +
+                "Groceries            $120.48,\n" +
+                "Pastries             $42.51,\n" +
+                "Fast food            $123.32,\n" +
+                "Sea food             $31.43\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "Dentist              $1532.43,\n" +
+                "Gym                  $50.48,\n" +
+                "Eye doctor           $70.51,\n" +
+                "Doctor               $213.34\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "\n" +
+                "\n" +
+                "Recreation:\n" +
+                "Netflix Subscription $20.48,\n" +
+                "TV                   $120.24,\n" +
+                "Hulu                 $49.37,\n" +
+                "Video games          $52.57";
         assertEquals(expectedStatus3,Nilushanth.getUserStatus());
 
     }
@@ -437,11 +589,23 @@ public class BudgetVisionTests {
         Nilushanth.addUserSubcategory("TV", 120.24);
         Nilushanth.addUserSubcategory("Hulu", 49.37);
         Nilushanth.addUserSubcategory("Video games", 52.57);
-        String expectedStatus = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {Netflix Subscription $20.48, TV $120.24, Hulu $49.37, Video games $52.57}";
+        String expectedStatus = "Food:\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "\n" +
+                "\n" +
+                "Recreation:\n" +
+                "Netflix Subscription $20.48,\n" +
+                "TV                   $120.24,\n" +
+                "Hulu                 $49.37,\n" +
+                "Video games          $52.57";
         assertEquals(expectedStatus,Nilushanth.getUserStatus());
 
         Nilushanth.addUserSubcategory("Video games", 52.57);
@@ -450,20 +614,47 @@ public class BudgetVisionTests {
 
         Nilushanth.addUserSubcategory("PS4 card", 49.37);
 
-        String expectedStatus2 = "Food: {}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {Netflix Subscription $20.48, TV $120.24, Hulu $49.37, Video games $52.57, PS4 card $49.37}";
+        String expectedStatus2 = "Food:\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "\n" +
+                "\n" +
+                "Recreation:\n" +
+                "Netflix Subscription $20.48,\n" +
+                "TV                   $120.24,\n" +
+                "Hulu                 $49.37,\n" +
+                "Video games          $52.57,\n" +
+                "PS4 card             $49.37";
         assertEquals(expectedStatus2,Nilushanth.getUserStatus());
 
         Nilushanth.addUserCategory("Food");
         Nilushanth.addUserSubcategory("Groceries", 249.37);
-        String expectedStatus3 = "Food: {Groceries $249.37}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {Netflix Subscription $20.48, TV $120.24, Hulu $49.37, Video games $52.57, PS4 card $49.37}";
+        String expectedStatus3 = "Food:\n" +
+                "Groceries            $249.37\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "\n" +
+                "\n" +
+                "Recreation:\n" +
+                "Netflix Subscription $20.48,\n" +
+                "TV                   $120.24,\n" +
+                "Hulu                 $49.37,\n" +
+                "Video games          $52.57,\n" +
+                "PS4 card             $49.37";
         assertEquals(expectedStatus3,Nilushanth.getUserStatus());
 
         //adding duplicate subcategories.
@@ -474,11 +665,26 @@ public class BudgetVisionTests {
         Nilushanth.addUserSubcategory("Pet food", 50.00);
         Nilushanth.addUserSubcategory("Pet food", 50.00);
 
-        String expectedStatus4 = "Food: {Groceries $249.37, Pet food $50.00}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {Netflix Subscription $20.48, TV $120.24, Hulu $49.37, Video games $52.57, PS4 card $49.37}";
+        String expectedStatus4 = "Food:\n" +
+                "Groceries            $249.37,\n" +
+                "Pet food             $50.00\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "\n" +
+                "\n" +
+                "Recreation:\n" +
+                "Netflix Subscription $20.48,\n" +
+                "TV                   $120.24,\n" +
+                "Hulu                 $49.37,\n" +
+                "Video games          $52.57,\n" +
+                "PS4 card             $49.37";
         assertEquals(expectedStatus4,Nilushanth.getUserStatus());
 
     }
@@ -530,11 +736,20 @@ public class BudgetVisionTests {
          * Nilushanth decides to stop breaking the application and decides to remove lunch subcategory entirely.
          */
         Nilushanth.removeUserSubcategory("Food","Lunch"); //Nilushanth removes lunch subcategory entirely.
-        String expectedStatus = "Food: {Groceries $336.00}"+
-                "\n\nHousing: {}"+
-                "\n\nLifestyle: {}"+
-                "\n\nCommute: {}"+
-                "\n\nRecreation: {}";
+        String expectedStatus = "Food:\n" +
+                "Groceries            $336.00\n" +
+                "\n" +
+                "\n" +
+                "Housing:\n" +
+                "\n" +
+                "\n" +
+                "Lifestyle:\n" +
+                "\n" +
+                "\n" +
+                "Commute:\n" +
+                "\n" +
+                "\n" +
+                "Recreation:";
         assertEquals(expectedStatus,Nilushanth.getUserStatus());
     }
 
