@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/cormorant_upright_medium</item>
+        <item>@font/dancing_script</item>
+        <item>@font/im_fell_double_pica_italic</item>
+        <item>@font/life_savers_bold</item>
+        <item>@font/nothing_you_could_do</item>
+        <item>@font/vibur</item>
+    </array>
+</resources>

@@ -1,0 +1,45 @@
+<resources>
+    <string name="app_name">"BudgetVision"</string>
+
+    <string name="successful_login">
+        Now with BudgetVision,<br/> <br/> you can effortlessly keep track
+        of your daily spending activities with Google Sheets.
+    </string>
+
+    <string name="download_sheet">
+        Your personalized google spreadsheet has been created in
+        the Downloads Manager of your android device. <br/> <br/>
+        There is also a copy of the spreadsheet in your google drive
+        which you can access through the google account you used to sign in
+        with BudgetVision.<br/> <br/>
+        Happy budgeting with BudgetVision!
+    </string>
+
+    <string-array name = "sortExpenses">
+        <item>-Sort by expenses or alphabetical order-</item>
+        <item>Ascending Expenses</item>
+        <item>Descending Expenses</item>
+        <item>Ascending Alphabetical Order</item>
+        <item>Descending Alphabetical Order</item>
+    </string-array>
+
+    <string-array name = "categoryOptions">
+        <item>-Choose Category-</item>
+        <item>Food</item>
+        <item>Housing</item>
+        <item>Commute</item>
+        <item>Lifestyle</item>
+        <item>Recreation</item>
+    </string-array>
+
+    <string-array name = "categoryOptions2">
+        <item>-Choose Category-</item>
+        <item>Food</item>
+        <item>Housing</item>
+        <item>Commute</item>
+        <item>Lifestyle</item>
+        <item>Recreation</item>
+    </string-array>
+
+
+</resources>
