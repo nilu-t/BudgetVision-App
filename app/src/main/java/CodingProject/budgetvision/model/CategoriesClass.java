@@ -535,7 +535,10 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the food subcategory names.
+    /**
+     * method for returning the food subcategory names.
+     * @return result
+     */
     public String[] getFood() {
         String[] result = getSubcategoryNames("Food");
 
@@ -543,7 +546,10 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the String representation of food subcategory costs.
+    /**
+     * method for returning the String representation of food subcategory costs.
+     * @return result
+     */
     public String[] getFoodCosts() {
         String[] result = getSubcategoryCosts("Food");
 
@@ -551,14 +557,20 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the number value representation of food subcategory costs.
+    /**
+     * method for returning the number value representation of food subcategory costs.
+     * @return result
+     */
     public double[] getFoodCostsNumber(){
         double[] result = getSubcategoryCostsNumber("Food");
         return result;
     }
 
 
-    //method for returning the housing subcategory names.
+    /**
+     * method for returning the housing subcategory names.
+     * @return result
+     */
     public String[] getHousing() {
         String[] result = getSubcategoryNames("Housing");
 
@@ -566,7 +578,10 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the String representation of housing subcategory costs.
+    /**
+     * method for returning the String representation of housing subcategory costs.
+     * @return result
+     */
     public String[] getHousingCosts() {
         String[] result = getSubcategoryCosts("Housing");
 
@@ -574,14 +589,20 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the number value representation of housing subcategory costs.
+    /**
+     * method for returning the number value representation of housing subcategory costs.
+     * @return result
+     */
     public double[] getHousingCostsNumber(){
         double[] result = getSubcategoryCostsNumber("Housing");
         return result;
     }
 
 
-    //method for returning the lifestyle subcategory names.
+    /**
+     * method for returning the lifestyle subcategory names.
+     * @return result
+     */
     public String[] getLifestyle() {
         String result[] = getSubcategoryNames("Lifestyle");
 
@@ -589,7 +610,10 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the String representation of lifestyle subcategory costs.
+    /**
+     * method for returning the String representation of lifestyle subcategory costs.
+     * @return result
+     */
     public String[] getLifestyleCosts() {
 
         String[] result = getSubcategoryCosts("Lifestyle");
@@ -597,14 +621,21 @@ public class CategoriesClass{
         return result;
     }
 
-    //method for returning the number value representation of lifestyle subcategory costs.
+
+    /**
+     * method for returning the number value representation of lifestyle subcategory costs.
+     * @return result
+     */
     public double[] getLifestyleCostsNumber(){
         double[] result = getSubcategoryCostsNumber("Lifestyle");
         return result;
     }
 
 
-    //method for returning the commute subcategory names in array.
+    /**
+     * method for returning the commute subcategory names in array.
+     * @return result
+     */
     public String[] getCommute() {
         String result[] = getSubcategoryNames("Commute");
 
@@ -612,7 +643,10 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the String representation of commute subcategory costs.
+    /**
+     * method for returning the String representation of commute subcategory costs.
+     * @return result
+     */
     public String[] getCommuteCosts() {
         String[] result = getSubcategoryCosts("Commute");
 
@@ -620,13 +654,20 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the number value representation of commute subcategory costs.
+    /**
+     * method for returning the number value representation of commute subcategory costs.
+     * @return result
+     */
     public double[] getCommuteCostsNumber(){
         double[] result = getSubcategoryCostsNumber("Commute");
         return result;
     }
 
-    //method for returning the recreation subcategory names in array.
+
+    /**
+     * method for returning the recreation subcategory names in array.
+     * @return result
+     */
     public String[] getRecreation() {
         String result[] = getSubcategoryNames("Recreation");
 
@@ -634,7 +675,10 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the String representation of recreation subcategory costs.
+    /**
+     * method for returning the String representation of recreation subcategory costs.
+     * @return result
+     */
     public String[] getRecreationCosts() {
         String[] result  = getSubcategoryCosts("Recreation");
 
@@ -642,7 +686,10 @@ public class CategoriesClass{
     }
 
 
-    //method for returning the number value representation of recreation subcategory costs.
+    /**
+     * method for returning the number value representation of recreation subcategory costs.
+     * @return result
+     */
     public double[] getRecreationCostsNumber(){
         double[] result = getSubcategoryCostsNumber("Recreation");
         return result;
@@ -663,7 +710,13 @@ public class CategoriesClass{
      *
      */
 
-    //helper method for finding the index of a subcategory.
+
+    /**
+     * helper method for finding the index of a subcategory.
+     * @param categoryName
+     * @param subcategoryName
+     * @return
+     */
     public int getSubcategoryNameIndex(String categoryName, String subcategoryName) {
         int index = -1; //index is initially -1; if index is -1 then the index is not found for the subcategory name.
 
@@ -702,7 +755,11 @@ public class CategoriesClass{
     }
 
 
-    //helper method for returning an array of subcategory name values without null elements.
+    /**
+     * helper method for returning an array of subcategory name values without null elements.
+     * @param categoryName
+     * @return
+     */
     public String[] getSubcategoryNames(String categoryName) {
         String[] temp = null;
 
@@ -917,7 +974,11 @@ public class CategoriesClass{
     }
 
 
-    //helper method for removing a subcategory name.
+    /**
+     * helper method for removing a subcategory name.
+     * @param categoryName
+     * @param subcategory
+     */
     public void removeSubcategoryName(String categoryName, String subcategory) {
         int index = getSubcategoryNameIndex(categoryName, subcategory); //index where the subcategory is found.
 
@@ -990,8 +1051,12 @@ public class CategoriesClass{
     }
 
 
-    //helper method for removing an expense for a specific subcategories in a Category.
-    //The purpose of this is to remove an expense to add a different expense for a specific subcategories in a Category.
+    /**
+     * helper method for removing an expense for a specific subcategories in a Category.
+     * The purpose of this is to remove an expense to add a different expense for a specific subcategories in a Category.
+     * @param categoryName
+     * @param subcategory
+     */
     public void removeSubcategoryExpense(String categoryName, String subcategory) {
         double[] temp = null;
         double[] allCosts = null;
@@ -1075,7 +1140,12 @@ public class CategoriesClass{
     }
 
 
-    //helper method for determining if an already existing (duplicate) subcategories name was tried to be added.
+    /**
+     * Helper method for determining if an already existing (duplicate) subcategories name was tried to be added.
+     * @param categoryName
+     * @param subcategory
+     * @return isDuplicate
+     */
     public boolean isDuplicate(String categoryName, String subcategory) {
         boolean isDuplicate = false;
         if (categoryName.equalsIgnoreCase("Food")) {
@@ -1108,14 +1178,19 @@ public class CategoriesClass{
     }
 
 
-    //helper method to add error.
+    /**
+     * helper method to add error.
+     * @param errorMessage
+     */
     public void addError(String errorMessage) {
         this.isError = true; //there is now a valid error.
         this.errorMSG = errorMessage; //there is now an error message.
     }
 
 
-    //helper method to reset error.
+    /**
+     * helper method to reset error.
+     */
     public void resetError() {
         this.isError = false; // no error.
         this.errorMSG = "";  // no error message.
@@ -1123,28 +1198,40 @@ public class CategoriesClass{
     }
 
 
-    //helper method used in Class UsersBudget. Return the current subcategory name.
+    /**
+     * helper method used in Class UsersBudget. Return the current subcategory name.
+     * @return this.subCategory
+     */
     public String getCurrentSubcategoryName(){
         return this.subCategory;
 
     }
 
 
-    //helper method used in Class UsersBudget. Return the current subcategory cost as Double data type.
+    /**
+     * /helper method used in Class UsersBudget. Return the current subcategory cost as Double data type.
+     * @return this.subCategoryCost
+     */
     public double getCurrentSubcategoryCostsNumber(){
         return this.subCategoryCost;
 
     }
 
 
-    //helper method used in Class UsersBudget. Return if there is currently an error.
+    /**
+     * helper method used in Class UsersBudget. Return if there is currently an error.
+     * @return this.isError
+     */
     public boolean isError(){
         return this.isError;
 
     }
 
 
-    //helper method used in Class UsersBudget. Returns the error message.
+    /**
+     * helper method used in Class UsersBudget. Returns the error message.
+     * @return this.errorMSG
+     */
     public String getErrorMSG(){
         return this.errorMSG;
 
@@ -1276,6 +1363,10 @@ public class CategoriesClass{
         return this.category;
     }
 
+    /**
+     * This method sets the category from the given category parameter.
+     * @param category
+     */
     public void setCategory(String category){
         this.category = category;
     }
