@@ -514,7 +514,7 @@ public class CategoriesClass{
             status +=  String.format("%-21s" , allCommute[i]) + "$" + allCommuteCosts[i];
 
             if (i < this.NOC - 1) {
-                status += ", ";
+                status += ",";
             }
         }
 
@@ -527,7 +527,7 @@ public class CategoriesClass{
             status +=  String.format("%-21s" , allRecreation[i]) + "$" + allRecreationCosts[i];
 
             if (i < this.NOR - 1) {
-                status += ", ";
+                status += ",";
             }
         }
 

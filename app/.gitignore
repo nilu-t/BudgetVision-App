@@ -1,2 +1,2 @@
-*.json
 /build
+/src/main/res/raw/client_secrets.json
