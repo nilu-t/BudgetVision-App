@@ -1,18 +1,14 @@
 package CodingProject.budgetvision.model;
 
 import android.app.Activity;
-import android.app.DownloadManager;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import CodingProject.budgetvision.R;
+import CodingProject.budgetvision.controller.MainActivity;
 
 public class LoginSuccessfulPopup extends Activity {
 

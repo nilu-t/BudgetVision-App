@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BudgetVision">
 
-        <activity android:name=".model.MainActivity"
+        <activity android:name=".controller.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <intent-filter>

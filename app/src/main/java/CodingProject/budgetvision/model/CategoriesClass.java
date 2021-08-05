@@ -2,6 +2,8 @@ package CodingProject.budgetvision.model;
 
 import java.io.IOException;
 
+import CodingProject.budgetvision.controller.MainActivity;
+
 public class CategoriesClass{
 
     /**

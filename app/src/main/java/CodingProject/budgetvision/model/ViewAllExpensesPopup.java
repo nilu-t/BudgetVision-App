@@ -12,6 +12,7 @@ import android.widget.TextView;
 import java.util.Locale;
 
 import CodingProject.budgetvision.R;
+import CodingProject.budgetvision.controller.MainActivity;
 
 public class ViewAllExpensesPopup extends Activity implements TextToSpeech.OnInitListener {
 

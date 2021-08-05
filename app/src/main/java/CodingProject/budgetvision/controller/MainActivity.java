@@ -1,9 +1,8 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.controller;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
@@ -15,6 +14,10 @@ import java.lang.ref.WeakReference;
 
 
 import CodingProject.budgetvision.R;
+import CodingProject.budgetvision.model.HomeFragment;
+import CodingProject.budgetvision.model.MoneyFragment;
+import CodingProject.budgetvision.model.SettingsFragment;
+import CodingProject.budgetvision.model.UsersBudgetClass;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -9,12 +9,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 import CodingProject.budgetvision.R;
+import CodingProject.budgetvision.controller.MainActivity;
 
 public class ViewSubcategoryPopup extends Activity {
     UsersBudgetClass user = MainActivity.getInstance().getUser();

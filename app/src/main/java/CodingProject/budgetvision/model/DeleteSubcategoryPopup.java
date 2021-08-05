@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import CodingProject.budgetvision.R;
+import CodingProject.budgetvision.controller.MainActivity;
 
 public class DeleteSubcategoryPopup extends Activity {
 
