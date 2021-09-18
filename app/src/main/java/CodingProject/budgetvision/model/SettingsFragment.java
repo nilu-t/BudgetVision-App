@@ -3,14 +3,22 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -19,6 +27,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -28,6 +38,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -49,7 +60,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import CodingProject.budgetvision.R;
 import CodingProject.budgetvision.controller.MainActivity;
@@ -71,6 +85,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
     Spreadsheet userSpreadsheet;
 
+    boolean stateOfSaveSwitch = false;
+
     View myInflatedView; //the inflated view which stores all the contents from this Settings Fragment.
 
     private String userUniqueId; //the unique id of the user. If the unique id is null then they have not signed into google via BudgetVision application.
@@ -81,6 +97,21 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     private int tempRowCounter = 1; //stores the row number used to update subcategories and costs in the google sheet.
     private static final String APPLICATION_NAME = "BudgetVision Transactions";
 
+    //currency conversion object from CurrencyConversionClass.java file.
+    CurrencyConversionClass currencyConversionObj = new CurrencyConversionClass();
+
+    CategoriesClass categoriesObject;
+    Spinner currencySpinner;
+    Switch saveCurrencySwitch;
+
+    int currencyCounter;
+    int defaultCurrencyPosition;
+
+    String dailyBudgetConverted;
+    String totalIncomeConverted;
+    String currentMonthlyExpensesConverted;
+
+    ArrayAdapter<String> allCountriesAdapter;
 
     /**
      * OnCreate method executes when the fragment is first created.
@@ -92,6 +123,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        categoriesObject = MainActivity.getInstance().getUser().categoriesObject();
+
         //inflate the contents inside the fragment.
         this.myInflatedView = inflater.inflate(R.layout.fragment_settings,container,false);
 
@@ -99,8 +132,21 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         signInButton.setVisibility(View.VISIBLE);
         signInButton.setEnabled(true);
 
-        signInButton.setOnClickListener(this);
+        //setting the array adapter containing all ISO 3166 countries in the array adapter.
+        String [] allCountries = currencyConversionObj.getAllCountries();
 
+        Spinner allCountriesSpinner = (Spinner)(this.myInflatedView.findViewById(R.id.currencySpinner));
+        allCountriesAdapter = new ArrayAdapter<String>(this.getActivity(),android.R.layout.simple_spinner_dropdown_item,allCountries);
+
+        allCountriesAdapter.remove((String)allCountriesSpinner.getSelectedItem());
+
+        //default spinner item is Canada since the default currency is CAD.
+        allCountriesSpinner.setAdapter(allCountriesAdapter);
+
+        //defaultCurrencyPosition = allCountriesAdapter.getPosition("(Canada)");
+        //allCountriesSpinner.setSelection(defaultCurrencyPosition);
+
+        signInButton.setOnClickListener(this);
 
         /*
          * The input stream of where the client_secrets.json file is stored.
@@ -132,12 +178,81 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 .requestEmail()
                 .build();
 
+        //view onclick listener for the clear all button.
+        ( (Button) this.myInflatedView.findViewById(R.id.clearAllButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearAll();
+            }
+        });
+
+
+        currencySpinner = ((Spinner)(this.myInflatedView.findViewById(R.id.currencySpinner)));
+
+        saveCurrencySwitch = ((Switch)(this.myInflatedView.findViewById(R.id.saveSwitch)));
+
+
+        //only execute the save switch to change currencies when the country is unique.
+        //listener for the save switch.
+        saveCurrencySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if(isChecked && currencyCounter % 2 == 0) {
+                    currencyChanged(); //change the currency to the currency selected.
+                    currencyCounter++;
+
+                    //prevent clicking of the switch again to avoid spamming/abuse.
+                    disableSaveCurrencySwitch();
+
+                }
+                if(isChecked){
+                    //prevent clicking of the spinner since the only option is to go back to CAD.
+                    currencySpinner.setEnabled(false);
+                    currencySpinner.setClickable(false);
+                }
+                if(! isChecked) {
+                    //allow clicking of the spinner there is option to choose new currency.
+                    currencySpinner.setEnabled(true);
+                    currencySpinner.setClickable(true);
+
+                    resetSpinnerToCanadaPosition(); //reset the spinner default position to Canada.
+
+                    currencyChanged(); //change the currency back to CAD.
+
+                    /*setting the array adapter containing all ISO 3166 countries in the array adapter.
+                     *This is to include Canada which was removed initially since default currency is CAD.
+                     */
+
+                    String [] allCountries = currencyConversionObj.getAllCountries();
+                    List<String> allCountriesList = new ArrayList<String>(Arrays.asList(allCountries));
+
+                    //prevent clicking of the switch again to avoid spamming.
+                    disableSaveCurrencySwitch();
+
+                    //remove option for Canada once again since the default currency is CAD again.
+                    allCountriesList.remove("Canada");
+                    allCountries = allCountriesList.toArray(new String[0]);
+
+                    allCountriesAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,allCountries);
+                    currencySpinner.setAdapter(allCountriesAdapter);
+
+                    currencyCounter++;
+
+
+                }
+
+            }
+        });
+
+
         // Build a GoogleSignInClient with the options specified by gso.
         //the context is the activity associated with the fragment which is called from getActivity(). This is a context since Activity extends Context.
         mGoogleSignInClient = GoogleSignIn.getClient(getActivity(),gso);
 
         return myInflatedView;
     }
+
 
     /**
      * When the google sign in button is clicked call the signIn() method.
@@ -150,7 +265,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
             case R.id.sign_in_button:
                 signIn();
                 break;
-            case R.id.downloadSheet:
+            case R.id.downloadSheetBtn:
                 downloadGoogleSheet();
                 break;
         }
@@ -497,15 +612,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
      * This method is used by the LoginSuccessfulPopup Class.
      * @return BugdgetVision user spreadsheet url.
      */
-    public String getSpreadsheetUrl(){
+    public String getSpreadsheetUrl() {
         return this.spreadsheetUrl;
-    }
-
-    /* this mutator sets the output label */
-    private void setContentsOfTextView(int id, String newContents) {
-        View view = (TextView) myInflatedView.findViewById(id);
-        TextView textView = (TextView) view;
-        textView.setText(newContents);
     }
 
     /**
@@ -517,7 +625,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
          * if the spreadsheet url is null this method does nothing.
          * If the spreadsheet url is valid then the pdf of spreadsheet is dowloaded.
          */
-        if(spreadsheetUrl!=null) {
+        if(spreadsheetUrl != null) {
             //request with download manager the URI of the spreadsheet url.
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(spreadsheetUrl));
 
@@ -533,7 +641,247 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
             //make the toast to tell the user downloading started.
             Toast.makeText(getActivity(), "Downloading started", Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * This method is executed via OnClick.
+     */
+    public void clearAll(){
+        MainActivity.getInstance().clearAllWarningMessage();
+    }
+
+    /**
+     * Helper Method executed from the "save" switch in the Settings Fragment. The currency has been changed.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void currencyChanged() {
+        String countryDisplayName = "English " + ((Spinner) this.myInflatedView.findViewById(R.id.currencySpinner)).getSelectedItem().toString();
+
+        //get all the subcategories for each cateogry and the number of subcategories.
+        double[] allFoodCosts = this.categoriesObject.getFoodCostsNumber();
+        int NOF = this.categoriesObject.getNOF();
+        double[] allHousingCosts = this.categoriesObject.getHousingCostsNumber();
+        int NOH = this.categoriesObject.getNOH();
+        double[] allCommuteCosts = this.categoriesObject.getCommuteCostsNumber();
+        int NOC = this.categoriesObject.getNOC();
+        double[] allRecreationCosts = this.categoriesObject.getRecreationCostsNumber();
+        int NOR = this.categoriesObject.getNOR();
+        double[] allLifestyleCosts = this.categoriesObject.getLifestyleCostsNumber();
+        int NOL = this.categoriesObject.getNOL();
+
+        String currentDailyBudget = MainActivity.getInstance().getDailyBudget();
+        String currentTotalIncome = MainActivity.getInstance().getTotalIncome();
+
+        double monthlyExpenses = Double.parseDouble(String.valueOf(MainActivity.getInstance().getUser().getTotalMonthlyExpenses()));
+
+        if( ! countryDisplayName.equalsIgnoreCase("English (Canada)")) {
+            //convert the monthly expenses.
+            currentMonthlyExpensesConverted = monthlyBudgetFutureProcess(countryDisplayName, String.valueOf(monthlyExpenses));
+
+            //convert the daily budget.
+            dailyBudgetConverted = dailyBudgetFutureProcess(countryDisplayName, currentDailyBudget);
+
+            //convert the total income.
+            totalIncomeConverted = totalIncomeFutureProcess(countryDisplayName, currentTotalIncome);
+        }
+        else if (countryDisplayName.equalsIgnoreCase("English (Canada)")){
+            try {
+                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, String.valueOf(monthlyExpenses));
+                currentMonthlyExpensesConverted = currencyConversionObj.toString();
+                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentDailyBudget);
+                dailyBudgetConverted = currencyConversionObj.toString();
+                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentTotalIncome);
+                totalIncomeConverted = currencyConversionObj.toString();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if( ! (dailyBudgetConverted.equalsIgnoreCase("currency not supported") || totalIncomeConverted.equalsIgnoreCase("currency not supported") || currentMonthlyExpensesConverted.equalsIgnoreCase("currency not supported")) ) {
+            //background thread to convert all the costs and then using handler to update the UI.
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                     /*
+                         * iterate through all the subcategories and format them according to their currency.
+                         * Handlers are used to update the arrays after the call to the method setCurrencySymbolAndFormat which does HTML parsing from yahoo finance asynchronously.
+                         */
+                        double[] latestFoodCosts = delayAndApplyCurrencyChange(NOF, allFoodCosts);
+                        double[] latestHousingCosts = delayAndApplyCurrencyChange(NOH, allHousingCosts);
+                        double[] latestLifestyleCosts = delayAndApplyCurrencyChange(NOL, allLifestyleCosts);
+                        double[] latestCommuteCosts = delayAndApplyCurrencyChange(NOC, allCommuteCosts);
+                        double[] latestRecreationCosts = delayAndApplyCurrencyChange(NOR, allRecreationCosts);
+
+                        //set the categories that are all formatted by the user-selected currency.
+                        categoriesObject.setSubcategoryCosts(latestFoodCosts, "food");
+                        categoriesObject.setSubcategoryCosts(latestHousingCosts, "housing");
+                        categoriesObject.setSubcategoryCosts(latestCommuteCosts, "commute");
+                        categoriesObject.setSubcategoryCosts(latestRecreationCosts, "recreation");
+                        categoriesObject.setSubcategoryCosts(latestLifestyleCosts, "lifestyle");
+
+                        //the current currency symbol for the currency chosen.
+                        String currencySymbol = currencyConversionObj.getCurrencySymbol();
+
+                        System.out.println(dailyBudgetConverted + " is dailyBudgetConverted");
+                        System.out.println(totalIncomeConverted + " is totalIncomeConverted");
+                        System.out.println(currentMonthlyExpensesConverted + " is currentMonthlyExpensesConverted");
+
+                        //set the converted monthly expenses.
+                        MainActivity.getInstance().getUser().setTotalMonthlyExpenses(Double.parseDouble(currentMonthlyExpensesConverted));
+
+                        Handler handler1 = new Handler(Looper.getMainLooper());
+                        handler1.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //set the currency symbol in the UsersBudget.java class.
+                                MainActivity.getInstance().getUser().setCurrencySymbol(currencySymbol);
+
+                                //formatting the currency value to 2 decimal places.
+                                String formattedCurrencyValue = " " + dailyBudgetConverted;
+
+                                // make update on the UI for daily budget.
+                                MainActivity.getInstance().updateDailyBudget();
+                            }
+                        }, 500);
+
+                        Handler handler2 = new Handler(Looper.getMainLooper());
+                        handler2.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                //set the currency symbol in the UsersBudget.java class.
+                                MainActivity.getInstance().getUser().setCurrencySymbol(currencySymbol);
+
+                                //formatting the currency value to 2 decimal places.
+                                String formattedCurrencyValue = " " + totalIncomeConverted;
+
+                                // make update on the UI for daily budget.
+                                MainActivity.getInstance().updateTotalIncome();
+                            }
+                        }, 500);
+
+                }
+            });
+
+        thread.start();
+
+        } //end of if-statement.
+        /*
+         * otherwise the currency is not supported. A toast is made to tell the user that the currency is currently not supported.
+         * Also, currency switch will then be on the switched off position.
+         */
+        else {
+            Toast.makeText(getActivity(), "This country currency is currently not supported.", Toast.LENGTH_LONG).show();
+            saveCurrencySwitch.setOnCheckedChangeListener(null);
+            saveCurrencySwitch.setChecked(false);
+            saveCurrencySwitch.setOnCheckedChangeListener(null);
+
+            //prevent clicking of the currency switch again.
+            saveCurrencySwitch.setEnabled(false);
+            saveCurrencySwitch.setClickable(false);
+
+        }
 
     }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public String monthlyBudgetFutureProcess(String countryDisplayName, String currentMonthlyExp){
+
+        CompletableFuture<Void> currentMonthlyExpFuture = CompletableFuture.runAsync(() -> {
+            try {
+                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentMonthlyExp);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        currentMonthlyExpFuture.join();
+
+        // Block and get the result of the Future
+        currentMonthlyExpensesConverted = currencyConversionObj.toString();
+
+        return currentMonthlyExpensesConverted;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public String dailyBudgetFutureProcess(String countryDisplayName, String currentDailyBudget){
+
+        CompletableFuture<Void> currentDailyBudgetFuture = CompletableFuture.runAsync(() -> {
+            try {
+                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentDailyBudget);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        currentDailyBudgetFuture.join();
+
+        // Block and get the result of the Future
+        dailyBudgetConverted = currencyConversionObj.toString();
+
+        return dailyBudgetConverted;
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public String totalIncomeFutureProcess(String countryDisplayName, String currentTotalIncome) {
+
+        CompletableFuture<Void> currentTotalIncomeFuture = CompletableFuture.runAsync(() -> {
+            try {
+                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentTotalIncome);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        currentTotalIncomeFuture.join();
+
+        // Block and get the result of the Future
+        totalIncomeConverted = currencyConversionObj.toString();
+        return totalIncomeConverted;
+    }
+
+    /**
+     * Helper method for currencyChanged() in SettingsFragment.java file.
+     * @return
+     */
+    public double[] delayAndApplyCurrencyChange(int numberOfCategories, double[] categoryCostArr){
+
+        for(int i = 0; i < numberOfCategories; i++){
+            double conversionRate = currencyConversionObj.getConversionRate();
+            categoryCostArr[i] = categoryCostArr[i] * conversionRate;
+        }
+
+        return categoryCostArr;
+    }
+
+    /**
+     * This method disables the clicking of the save currency switch.
+     */
+    public void disableSaveCurrencySwitch(){
+        saveCurrencySwitch.setEnabled(false);
+        saveCurrencySwitch.setClickable(false);
+    }
+
+    public void resetSpinnerToCanadaPosition(){
+        String [] allCountries = currencyConversionObj.getAllCountries();
+        List<String> allCountriesList = new ArrayList<String>(Arrays.asList(allCountries));
+
+        allCountriesAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,allCountries);
+
+        //set the selection of the currency spinner to CAD.
+        defaultCurrencyPosition = allCountriesAdapter.getPosition("(Canada)");
+        currencySpinner.setSelection(defaultCurrencyPosition);
+    }
+    /**
+     * This method will display a warning for changing currency after unchecking the "save" switch. The warning message will be a toast to confirm everything has been cleared.
+     * You can only change the currency once through the "save" switch.
+     * if the "save" switch is unchecked a warning message will be displayed that all subcategories will be cleared.
+     */
+    public void saveSwitchReset(){
+        Toast.makeText(getActivity().getBaseContext(), "All subcategories have been cleared. Default currency is now CAD.", Toast.LENGTH_LONG).show();
+        MainActivity.getInstance().clearAll();
+    }
+
 
 }

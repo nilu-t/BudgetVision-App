@@ -16,6 +16,7 @@ public class ViewSubcategoryPopup extends Activity {
     UsersBudgetClass user = MainActivity.getInstance().getUser();
     String category = user.categoriesObject().getCategory();
 
+
     //empty constructor for view Subcategory Popup.
     public ViewSubcategoryPopup(){
 
@@ -102,22 +103,22 @@ public class ViewSubcategoryPopup extends Activity {
 
 
     /**
-     * method for calculating the total income
+     * Executed via OnClick of "ADD SUBCATEGORY" button.
+     * method for updating the total income on "ViewSubcategoryPopup" user interface.
      */
     public void updateTotalIncome(){
-        String userIncome = "$ " + this.user.userTotalBalance();
         //call the update total income method in main activity since the user income text is in main activity layout.
-        MainActivity.getInstance().updateTotalIncome(userIncome);
+        MainActivity.getInstance().updateTotalIncome();
     }
 
 
     /**
-     * method for calculating the daily budget
+     * Executed via OnClick of "ADD SUBCATEGORY" button.
+     * method for updating the daily budget on "ViewSubcategoryPopup" user interface.
      */
     public void updateDailyBudget(){
-        String dailyBudget =  "$ " + this.user.userDailyBudget();
         //call the update daily budget method in main activity since the user daily budget text is in the main activity layout.
-        MainActivity.getInstance().updateDailyBudget(dailyBudget);
+        MainActivity.getInstance().updateDailyBudget();
     }
 
 

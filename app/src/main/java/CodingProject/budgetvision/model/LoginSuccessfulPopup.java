@@ -44,7 +44,6 @@ public class LoginSuccessfulPopup extends Activity {
 
     }
 
-
     //controller method for closing this activity when the "close" button is clicked.
     public void closeActivity(View view){
         this.finish();

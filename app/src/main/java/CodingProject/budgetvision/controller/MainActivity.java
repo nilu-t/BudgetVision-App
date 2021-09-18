@@ -1,12 +1,15 @@
 package CodingProject.budgetvision.controller;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.io.IOException;
@@ -14,6 +17,8 @@ import java.lang.ref.WeakReference;
 
 
 import CodingProject.budgetvision.R;
+import CodingProject.budgetvision.model.CategoriesClass;
+import CodingProject.budgetvision.model.CurrencyConversionClass;
 import CodingProject.budgetvision.model.HomeFragment;
 import CodingProject.budgetvision.model.MoneyFragment;
 import CodingProject.budgetvision.model.SettingsFragment;
@@ -22,19 +27,17 @@ import CodingProject.budgetvision.model.UsersBudgetClass;
 public class MainActivity extends AppCompatActivity {
 
 
-    UsersBudgetClass user = new UsersBudgetClass(); //creating a User Budget object from the UsersBudget Class.
+    private UsersBudgetClass user = new UsersBudgetClass(); //creating a User Budget object from the UsersBudget Class.
 
     public static WeakReference <MainActivity> weakActivity;
 
-    HomeFragment homeFragment = new HomeFragment(); //the home fragment to be used.
-    MoneyFragment moneyFragment = new MoneyFragment(); // the money fragment to be used.
-    SettingsFragment settingsFragment = new SettingsFragment(); //the settings fragment to be used.
-
+    private HomeFragment homeFragment = new HomeFragment(); //the home fragment to be used.
+    private MoneyFragment moneyFragment = new MoneyFragment(); // the money fragment to be used.
+    private SettingsFragment settingsFragment = new SettingsFragment(); //the settings fragment to be used.
     //SharedPreferences sharedPreferences;
 
-
-    String incomeLoad;
-    String dailyBudgetLoad;
+    private String incomeLoad;
+    private String dailyBudgetLoad;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,14 +77,15 @@ public class MainActivity extends AppCompatActivity {
         //instance is this main activity.
         weakActivity = new WeakReference<>(MainActivity.this);
 
+        //update the daily budget and total income initially to zero dollars on initial create.
+        updateInitialValues();
 
  //       loadData();
 //      updateViews();
-        //update the daily budget and total income initially to zero dollars on initial create.
-        //updateInitialValues();
 
     }
 
+    //TODO: saving the variables is not working after the application is restarted. Fix later.
 //    @Override
 //    public void onSaveInstanceState(Bundle savedInstanceState){
 //        super.onSaveInstanceState(savedInstanceState);
@@ -108,10 +112,6 @@ public class MainActivity extends AppCompatActivity {
 //        String savedDailyBudget = savedInstanceState.getString("dailyBudgetLoad");
 //        dailyBudgetTextView.setText(savedDailyBudget);
 //    }
-
-    public Object onRetainCustomNonConfigurationInstance() {
-        return this;
-    }
 
     /**
      * On navigation item selected listener for the bottom navigation view.
@@ -187,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
         return weakActivity.get();
     }
 
+//TODO: shared preferences not working, fix later.
+
 //    public void saveData(){
 //        TextView incomeTextView = (TextView) findViewById(R.id.incomeValueText); //The income textview.
 //        TextView dailyBudgetTextView = (TextView) findViewById(R.id.dailyBudgetText); //the daily budget textview.
@@ -203,29 +205,32 @@ public class MainActivity extends AppCompatActivity {
 //        dailyBudgetLoad = sharedPreferences.getString(dailyBudgetLoad, "");
 //
 //    }
+//    public void updateViews(){
+//        setContentsOfTextView(R.id.incomeValueText, incomeLoad);
+//        setContentsOfTextView(R.id.dailyBudgetText, dailyBudgetLoad);
+//    }
 
-    public void updateViews(){
-        setContentsOfTextView(R.id.incomeValueText, incomeLoad);
-        setContentsOfTextView(R.id.dailyBudgetText, dailyBudgetLoad);
-    }
+
     /**
-     * This method is used in ViewSubcategoryPopup.
+     * This method is used in ViewSubcategoryPopup.java and MainActivity.java .
      * helper method for the setting the total income text.
-     * @param income
      */
-    public void updateTotalIncome(String income){
-        setContentsOfTextView(R.id.incomeValueText, income);
+    public void updateTotalIncome(){
+        String currencySymbol = user.getCurrencySymbol(); // the currency symbol.
+
+        setContentsOfTextView(R.id.incomeValueText, currencySymbol + " " + this.user.getUserTotalIncome());
         //saveData();
     }
 
 
     /**
-     * This method is used in the ViewSubcategoryPopup Class.
+     * This method is used in the ViewSubcategoryPopup.java and MainActivity.java .
      * helper method for setting the daily budget text.
-     * @param dailyBudget
      */
-    public void updateDailyBudget(String dailyBudget){
-        setContentsOfTextView(R.id.dailyBudgetText, dailyBudget);
+    public void updateDailyBudget(){
+        String currencySymbol = user.getCurrencySymbol(); // the currency symbol.
+
+        setContentsOfTextView(R.id.dailyBudgetText, currencySymbol  + " " +  this.user.getUserDailyBudget());
         //saveData();
     }
 
@@ -252,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
         return settingsFragment.getSpreadsheetUrl();
     }
 
-
     /**
      * this mutator sets the output label
      * @param id
@@ -264,16 +268,59 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(newContents);
     }
 
+    /**
+     * This method will create a new categories object, all other previous attributes associated with the category will be gone.
+     * An alert dialog is displayed to give a warning for the user before clearing all the subcategories.
+     */
+    public void clearAllWarningMessage(){
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setTitle("BudgetVision Alert");
+        alertDialog.setMessage("WARNING:\nAll subcategories will be cleared.\nAre you sure you want to proceed?");
+        //alert dialog button to remove all the subcategories
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "YES",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which == AlertDialog.BUTTON_POSITIVE){
+                            user = new UsersBudgetClass();
+                            updateInitialValues();
+                        }
+                        dialog.dismiss();
+                    }
+                });
+        //alert dialog button to cancel and go back,
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
+    public void clearAll(){
+        user = new UsersBudgetClass();
+        updateInitialValues();
+    }
+    /**
+     * method for initially setting the text input values to $0. Also, executes after the method clearAll().
+     */
+    public void updateInitialValues(){
+        setContentsOfTextView(R.id.incomeValueText, "$0.00");
+        setContentsOfTextView(R.id.dailyBudgetText, "$0.00");
+    }
 
     /**
-     * method for initially setting the text input values to $0.
+     * Helper method used in Settings Fragment. Returns the current text of the daily budget.
      */
-//    public void updateInitialValues(){
-//        setContentsOfTextView(R.id.incomeValueText, "$0");
-//        setContentsOfTextView(R.id.dailyBudgetText, "$0");
-//    }
+    public String getDailyBudget(){
+        return ((TextView)(findViewById(R.id.dailyBudgetText))).getText().toString();
+    }
 
-
-
+    /**
+     * Helper method used in Settings Fragment. Returns the current text of the total income.
+     */
+    public String getTotalIncome(){
+        return ((TextView)(findViewById(R.id.incomeValueText))).getText().toString();
+    }
 
 }

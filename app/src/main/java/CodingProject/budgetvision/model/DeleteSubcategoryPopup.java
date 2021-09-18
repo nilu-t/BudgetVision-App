@@ -138,17 +138,15 @@ public class DeleteSubcategoryPopup extends Activity {
 
     //method for calculating the total income after the subcategory was deleted.
     public void updateTotalIncome(){
-        String userIncome = "$ " + this.user.userTotalBalance();
         //call the update total income method in main activity since the user income text is in main activity layout.
-        MainActivity.getInstance().updateTotalIncome(userIncome);
+        MainActivity.getInstance().updateTotalIncome();
     }
 
 
     //method for calculating the daily budget after the subcategory was deleted.
     public void updateDailyBudget(){
-        String dailyBudget =  "$ " + this.user.userDailyBudget();
         //call the update daily budget method in main activity since the user daily budget text is in the main activity layout.
-        MainActivity.getInstance().updateDailyBudget(dailyBudget);
+        MainActivity.getInstance().updateDailyBudget();
     }
 
 

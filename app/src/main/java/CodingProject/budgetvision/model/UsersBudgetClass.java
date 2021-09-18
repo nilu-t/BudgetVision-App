@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Collections;
 
+import CodingProject.budgetvision.controller.MainActivity;
+
 public class UsersBudgetClass {
 
     /*
@@ -16,30 +18,29 @@ public class UsersBudgetClass {
     /*
      * income, total balance and expenses.
      */
-    private double totalBalance; //total balance of a user.
     private double totalIncome; //total income for the user.
     private double totalInitialIncome; //initial income for the user.
     private double totalMonthlyExpenses; //total expenses for the user.
 
     /*
-     * daily budget, monthly budget, projection etc.
+     * daily budget.
      */
     private double dailyBudget; //daily budget for the user.
 
     private CategoriesClass userCategory; //Categories object userCategory.
 
-    private String sortedFood[]; //stores all sorted food subcategories.
-    private String sortedHousing[]; //stores all sorted housing subcategories.
-    private String sortedLifestyle[]; //stores all sorted lifestyle subcategories.
-    private String sortedCommute[]; //stores all sorted commute subcategories.
-    private String sortedRecreation[]; //stores all sorted recreation subcategories.
+    private String[] sortedFood; //stores all sorted food subcategories.
+    private String[] sortedHousing; //stores all sorted housing subcategories.
+    private String[] sortedLifestyle; //stores all sorted lifestyle subcategories.
+    private String[] sortedCommute; //stores all sorted commute subcategories.
+    private String[] sortedRecreation; //stores all sorted recreation subcategories.
     private String categoryName; //stores the current category name.
 
-    private double sortedFoodCosts[]; //stores all sorted food costs subcategories.
-    private double sortedHousingCosts[]; //stores all sorted housing costs subcategories.
-    private double sortedLifestyleCosts[]; //stores all sorted lifestyle costs subcategories.
-    private double sortedCommuteCosts[]; //stores all sorted commute costs subcategories.
-    private double sortedRecreationCosts[]; //stores all sorted recreation costs subcategories.
+    private double[] sortedFoodCosts; //stores all sorted food costs subcategories.
+    private double[] sortedHousingCosts; //stores all sorted housing costs subcategories.
+    private double[] sortedLifestyleCosts; //stores all sorted lifestyle costs subcategories.
+    private double[] sortedCommuteCosts; //stores all sorted commute costs subcategories.
+    private double[] sortedRecreationCosts; //stores all sorted recreation costs subcategories.
 
     //TreeMaps to store the subcategories and subcategory costs. Where the key is subcategory cost and the value is the subcategories,
     TreeMap <String,Double> foodMap = new TreeMap<>(); //Tree Map for food.
@@ -49,6 +50,7 @@ public class UsersBudgetClass {
     TreeMap <String,Double> recreationMap = new TreeMap<>(); //Tree Map for recreation.
 
     private int NOS; //store the number of subcategories REMAINING for a specific category.
+    private String currencySymbol;  //the currency symbol according to the country selected by the user.
 
     //empty User constructor.
     public UsersBudgetClass(){
@@ -152,14 +154,13 @@ public class UsersBudgetClass {
             double [] allCommute = this.userCategory.getCommuteCostsNumber();
             expenseToRemove = allCommute[indexOfSubcategoryToRemove];
         }
+        //remove the subcategory with the category name and the subcategory to remove.
+        this.userCategory.removeSubcategory(categoryName, subcategoryToRemove);
 
         //decrease the total monthly expenses due to removing the subcategory if and only if the subcategory is valid.
         if(!(this.userCategory.isError())) {
             this.totalMonthlyExpenses -= expenseToRemove;
         }
-
-        //remove the subcategory with the category name and the subcategory to remove.
-        this.userCategory.removeSubcategory(categoryName, subcategoryToRemove);
     }
 
 
@@ -170,6 +171,7 @@ public class UsersBudgetClass {
      * @param additionalExpense
      */
     public void addUserAdditionalExpense(String categoryName, String subcategoryName, double additionalExpense){
+
         this.userCategory.addExpense(additionalExpense, subcategoryName,categoryName);
 
         //increase the total user income due to adding additional expense if and only if there is no error in user adding the additional expense.
@@ -182,7 +184,7 @@ public class UsersBudgetClass {
 
     /**
      * get immediate status on what the user has added after adding subcategory.
-     * @return
+     * @return immediateStatus
      */
     public String userImmediateStatus(){
         String immediateStatus = "";
@@ -194,7 +196,7 @@ public class UsersBudgetClass {
             String subcategoryName = this.userCategory.getCurrentSubcategoryName();
             String subcategoryExpense = String.format("%.2f", this.userCategory.getCurrentSubcategoryCostsNumber());
 
-            immediateStatus = "You Have Added " + subcategoryName + " for $" + subcategoryExpense;
+            immediateStatus = "You Have Added " + subcategoryName + " for " + MainActivity.getInstance().getUser().currencySymbol + subcategoryExpense;
         }
 
         return immediateStatus;
@@ -203,7 +205,7 @@ public class UsersBudgetClass {
 
     /**
      * return a string representation of the users status for a specific category.
-     * @return
+     * @return status
      */
     public String getUserStatus(){
         String status = "";
@@ -230,17 +232,19 @@ public class UsersBudgetClass {
         return dailyBudgetResult;
     }
 
-
-    //method for returning the total balance for the user.
-    public String userTotalBalance(){
+    /**
+     * method for returning the total income for the user.
+     * @return
+     */
+    public String userTotalIncome(){
         if(!(this.userCategory.isError())) {
-            this.totalBalance = ((this.totalIncome + this.totalInitialIncome) - this.totalMonthlyExpenses);
+            this.totalIncome = ( this.totalInitialIncome - this.totalMonthlyExpenses);
         }
         //rounding the total balance to two decimal places wuth thousands seperator.
-        String totalBalanceResult = String.format("%,.2f",this.totalBalance);
-
+        String totalBalanceResult = String.format("%,.2f",this.totalIncome);
         return totalBalanceResult;
     }
+
 
     /**
      * Helper method to return the current CategoriesClass object.
@@ -249,6 +253,7 @@ public class UsersBudgetClass {
     public CategoriesClass categoriesObject(){
         return this.userCategory;
     }
+
 
     /**
      * This method will set sorted subcategories for each and every category.
@@ -328,6 +333,7 @@ public class UsersBudgetClass {
 
     }
 
+
     /**
      * Helper method to sort the specific category array using its category map. ALPHABETICALLY.
      * Assuming the Map is Map<String,Double> for the category.
@@ -362,10 +368,11 @@ public class UsersBudgetClass {
             iter++;
         }
 
-        categoriesObject().setSortedSubcategoryNames(categorySubcategory, categoryName);
-        categoriesObject().setSortedSubcategoryCosts(categorySubcategoriesCosts, categoryName);
+        categoriesObject().setSubcategoryNames(categorySubcategory, categoryName);
+        categoriesObject().setSubcategoryCosts(categorySubcategoriesCosts, categoryName);
 
     }
+
 
     /*
      * implemented binary search to find the least expensive subcategories for current category.
@@ -387,6 +394,7 @@ public class UsersBudgetClass {
     public void splitIncomeAmongUsers(int numberOfUsers){
         //TODO in another class ? -> MultipleUsers class ?
     }
+
 
     /**
      * UsersBudgetClass Method which returns the number of subcategories REMAINING for a specific category.
@@ -412,5 +420,57 @@ public class UsersBudgetClass {
 
     }
 
+
+    /**
+     * Helper method used in ViewSubcategoryPopup.java and AdditionalExpensePopup.java to update total income interface.
+     * @return
+     */
+    public String getUserTotalIncome(){
+        return userTotalIncome();
+    }
+
+
+    /**
+     * Helper method used in ViewSubcategoryPopup.java and AdditionalExpensePopup.java to update total income interface.
+     * @return
+     */
+    public String getUserDailyBudget(){
+        return userDailyBudget();
+    }
+
+    /**
+     * Helper method used in SettingsFragment.java class to get the monthly expenses.
+     */
+    public double getTotalMonthlyExpenses(){
+        return this.totalMonthlyExpenses;
+    }
+
+    /**
+     * Helper method used in SettingsFragment.java class to set the new total monthly expenses after conversion.
+     *  @param convertedMonthlyExpenses
+     */
+    public void setTotalMonthlyExpenses(double convertedMonthlyExpenses){
+        this.totalMonthlyExpenses = convertedMonthlyExpenses;
+    }
+
+
+    /**
+     * Helper method used to set the currency symbol by the SettingsFragment.
+     * @param currencySymbol
+     */
+    public void setCurrencySymbol(String currencySymbol) {
+        this.currencySymbol = currencySymbol;
+    }
+
+    /**
+     * Helper method to get the currency symbol used in MainActivity.java class.
+     */
+    public String getCurrencySymbol(){
+        //if the currency symbol is null then the default currency symbol is CAD -> "$"
+        if(this.currencySymbol == null){
+            this.currencySymbol = "$ ";
+        }
+        return this.currencySymbol;
+    }
 
 }

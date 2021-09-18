@@ -136,20 +136,21 @@ public class AdditionalExpensePopup extends Activity {
         EditText expenseChoice = (EditText) findViewById(R.id.expToIncrTxt);
         String expense = expenseChoice.getText().toString();
 
-        //add the user expense.
-        user.addUserAdditionalExpense(this.categorySelected, this.subcategoryChosen, Double.parseDouble(expense));
-
         String confirmation = this.user.userImmediateStatus();
         immediateStatus();
         if(!(confirmation.equalsIgnoreCase("Error: Subcategory " + this.subcategoryChosen + " Does Not Exist For Category " + this.categorySelected))) {
             //close the activity now that the expense has been added. To prevent user from spamming expenses for the same subcategory simultaneously.
             closeActivity();
 
+            //add the user expense.
+            user.addUserAdditionalExpense(this.categorySelected, this.subcategoryChosen, Double.parseDouble(expense));
+
             //update the total income now.
             updateTotalIncome();
 
             //update the daily budget now.
             updateDailyBudget();
+
         }
 
     }
@@ -159,9 +160,8 @@ public class AdditionalExpensePopup extends Activity {
      * method for calculating the total income
      */
     public void updateTotalIncome(){
-        String userIncome = "$ " + this.user.userTotalBalance();
         //call the update total income method in Main activity.
-        MainActivity.getInstance().updateTotalIncome(userIncome);
+        MainActivity.getInstance().updateTotalIncome();
     }
 
 
@@ -169,9 +169,8 @@ public class AdditionalExpensePopup extends Activity {
      * method for calculating the daily budget
      */
     public void updateDailyBudget(){
-        String dailyBudget =  "$ " + this.user.userDailyBudget();
         //call the update daily budget method in Main activity.
-        MainActivity.getInstance().updateDailyBudget(dailyBudget);
+        MainActivity.getInstance().updateDailyBudget();
     }
 
 

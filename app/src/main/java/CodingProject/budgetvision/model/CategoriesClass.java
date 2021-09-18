@@ -19,19 +19,19 @@ public class CategoriesClass{
     private double currentExpenses; //current expenses.
 
     //All of the sub-categories corresponding to each category names.
-    private String food[]; //stores all food subcategories.
-    private String housing[]; //stores all housing subcategories.
-    private String lifestyle[]; //stores all lifestyle subcategories.
-    private String commute[]; //stores all commute subcategories.
-    private String recreation[]; //stores all recreation subcategories.
+    private String[] food; //stores all food subcategories.
+    private String[] housing; //stores all housing subcategories.
+    private String[] lifestyle; //stores all lifestyle subcategories.
+    private String[] commute; //stores all commute subcategories.
+    private String[] recreation; //stores all recreation subcategories.
 
 
     //All of the subcategories costs.
-    private double foodCosts[]; //stores all food subcategories costs.
-    private double housingCosts[]; //stores all housing subcategories costs.
-    private double lifestyleCosts[]; //stores all lifestyle subcategories costs.
-    private double commuteCosts[]; //stores all commute subcategories costs.
-    private double recreationCosts[]; //stores all recreation subcategories costs.
+    private double[] foodCosts; //stores all food subcategories costs.
+    private double[] housingCosts; //stores all housing subcategories costs.
+    private double[] lifestyleCosts; //stores all lifestyle subcategories costs.
+    private double[] commuteCosts; //stores all commute subcategories costs.
+    private double[] recreationCosts; //stores all recreation subcategories costs.
 
 
     //All of the counters for each subcategories.
@@ -63,9 +63,6 @@ public class CategoriesClass{
     private final int MAX_NOC = 50; //maximum number of commute subcategories.
     private final int MAX_NOR = 50; //maximum number of recreation subcategories.
 
-
-    int maxFoodLength = 0; //number of spaces for food subcategory for formatting.
-
     private String category; //current category.
     private String subCategory; //current subcategory.
     private double subCategoryCost; //current sub-category cost.
@@ -82,6 +79,9 @@ public class CategoriesClass{
     private boolean isFatalError; //boolean variable to check for fatal error.
     private boolean isDuplicateSubcategory; //check if there is a duplicate subcategory.
 
+    private double currencyRate = 1; //currency rate initially 1 since default currency is CAD.
+    private String currencySymbol; // the currency symbol variable obtained from MainActivity.java class.
+
     //thread to be run in the background used for executing the google sheet commands.
     Thread doGoogleSheetInBackground;
 
@@ -89,7 +89,7 @@ public class CategoriesClass{
     String uniqueId;
 
     /**
-     * empty Categories constructor.
+     * empty Categories constructor to intitialize all the categories names and costs.
      */
     public CategoriesClass() {
         //instantiating names related categories and sub-categories arrays to their maximum length.
@@ -146,12 +146,13 @@ public class CategoriesClass{
      * @param subCategoryCost
      */
     public void addSubCategory(String categoryName, String subCategoryToAdd, double subCategoryCost) {
+        this.currencySymbol = MainActivity.getInstance().getUser().getCurrencySymbol();
 
         //reset the error before the subcategory is added. Calling this method will not reset any fatal errors.
         resetError();
 
         this.subCategory = subCategoryToAdd.trim(); //remove the trailing and leading whitespaces if-any from the user inputted subcategory to be added.
-        this.subCategoryCost = subCategoryCost;
+        this.subCategoryCost = subCategoryCost * this.currencyRate;
         String[] tempNames; //temp array stores all names.
         double[] tempCosts; //temp array stores all costs.
 
@@ -168,7 +169,7 @@ public class CategoriesClass{
             doGoogleSheetInBackground = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String cost = "$ " + String.format("%.2f", subCategoryCost);
+                    String cost = String.format("%.2f", subCategoryCost);
 
                     //add the subcategories and cost to the BudgetVision user google sheet if and only if there are no duplicate subcategories or errors detected.
                     if(!isError() && !isDuplicateSubcategory) {
@@ -446,7 +447,6 @@ public class CategoriesClass{
      * IMPORTANT NOTE: Expense is to be removed first and after subcategory name is removed.
      * Because if the subcategory name is first removed then the expense associated will not be found.
      */
-    
     public void removeSubcategory(String categoryName, String subcategory) {
         //reset the error before subcategory is removed.
         resetError();
@@ -456,7 +456,6 @@ public class CategoriesClass{
 
     }
 
-
     /**
      * method for getting status.
      * The status will return all the current subcategories for each category.
@@ -465,13 +464,16 @@ public class CategoriesClass{
      * @return
      */
     public String getStatus() {
+        //get the currency symbol from the user object in Main Activity.
+        this.currencySymbol = MainActivity.getInstance().getUser().getCurrencySymbol();
+
         String status = "";
         status = "Food:";
         String[] allFood = getFood();
         String[] allFoodCosts = getFoodCosts();
         for (int i = 0; i < this.NOF ; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allFood[i]) + "$" + allFoodCosts[i];
+            status +=  String.format("%-21s" , allFood[i]) +  this.currencySymbol + allFoodCosts[i];
             System.out.println(status);
 
             if (i < this.NOF - 1) {
@@ -485,7 +487,7 @@ public class CategoriesClass{
         String[] allHousingCosts = getHousingCosts();
         for (int i = 0; i < this.NOH; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allHousing[i]) + "$" + allHousingCosts[i];
+            status +=  String.format("%-21s" , allHousing[i]) +  this.currencySymbol + allHousingCosts[i];
 
             if (i < this.NOH - 1) {
                 status += ",";
@@ -498,7 +500,7 @@ public class CategoriesClass{
         String[] allLifestyleCosts = getLifestyleCosts();
         for (int i = 0; i < this.NOL; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allLifestyle[i]) + "$" + allLifestyleCosts[i];
+            status +=  String.format("%-21s" , allLifestyle[i]) +  this.currencySymbol + allLifestyleCosts[i];
 
             if (i < this.NOL - 1) {
                 status += ",";
@@ -511,7 +513,7 @@ public class CategoriesClass{
         String[] allCommuteCosts = getCommuteCosts();
         for (int i = 0; i < this.NOC; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allCommute[i]) + "$" + allCommuteCosts[i];
+            status +=  String.format("%-21s" , allCommute[i]) +  this.currencySymbol + allCommuteCosts[i];
 
             if (i < this.NOC - 1) {
                 status += ",";
@@ -524,7 +526,7 @@ public class CategoriesClass{
         String[] allRecreationCosts = getRecreationCosts();
         for (int i = 0; i < this.NOR; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allRecreation[i]) + "$" + allRecreationCosts[i];
+            status +=  String.format("%-21s" , allRecreation[i]) + this.currencySymbol + allRecreationCosts[i];
 
             if (i < this.NOR - 1) {
                 status += ",";
@@ -604,7 +606,7 @@ public class CategoriesClass{
      * @return result
      */
     public String[] getLifestyle() {
-        String result[] = getSubcategoryNames("Lifestyle");
+        String[] result = getSubcategoryNames("Lifestyle");
 
         return result;
     }
@@ -637,7 +639,7 @@ public class CategoriesClass{
      * @return result
      */
     public String[] getCommute() {
-        String result[] = getSubcategoryNames("Commute");
+        String[] result = getSubcategoryNames("Commute");
 
         return result;
     }
@@ -669,7 +671,7 @@ public class CategoriesClass{
      * @return result
      */
     public String[] getRecreation() {
-        String result[] = getSubcategoryNames("Recreation");
+        String[] result = getSubcategoryNames("Recreation");
 
         return result;
     }
@@ -710,7 +712,6 @@ public class CategoriesClass{
      *
      */
 
-
     /**
      * helper method for finding the index of a subcategory.
      * @param categoryName
@@ -720,31 +721,31 @@ public class CategoriesClass{
     public int getSubcategoryNameIndex(String categoryName, String subcategoryName) {
         int index = -1; //index is initially -1; if index is -1 then the index is not found for the subcategory name.
 
-        if (categoryName.equals("Food")) {
+        if (categoryName.equalsIgnoreCase("Food")) {
             for (int i = 0; i < this.NOF; i++) {
                 if (this.food[i].equalsIgnoreCase(subcategoryName)) {
                     index = i;
                 }
             }
-        } else if (categoryName.equals("Housing")) {
+        } else if (categoryName.equalsIgnoreCase("Housing")) {
             for (int i = 0; i < this.NOH; i++) {
                 if (this.housing[i].equalsIgnoreCase(subcategoryName)) {
                     index = i;
                 }
             }
-        } else if (categoryName.equals("Lifestyle")) {
+        } else if (categoryName.equalsIgnoreCase("Lifestyle")) {
             for (int i = 0; i < this.NOL; i++) {
                 if (this.housing[i].equalsIgnoreCase(subcategoryName)) {
                     index = i;
                 }
             }
-        } else if (categoryName.equals("Commute")) {
+        } else if (categoryName.equalsIgnoreCase("Commute")) {
             for (int i = 0; i < this.NOC; i++) {
                 if (this.commute[i].equalsIgnoreCase(subcategoryName)) {
                     index = i;
                 }
             }
-        } else if (categoryName.equals("Recreation")) {
+        } else if (categoryName.equalsIgnoreCase("Recreation")) {
             for (int i = 0; i < this.NOR; i++) {
                 if (this.recreation[i].equalsIgnoreCase(subcategoryName)) {
                     index = i;
@@ -819,7 +820,7 @@ public class CategoriesClass{
         }
 
         //new result array the size of the count.
-        String result[] = new String[count]; //the array to return containing no null-values.
+        String[] result = new String[count]; //the array to return containing no null-values.
         for (int i = 0; i < count; i++) {
             result[i] = temp[i];
         }
@@ -834,7 +835,7 @@ public class CategoriesClass{
      * @return
      */
     public String[] getSubcategoryCosts(String categoryName) {
-        double temp[] = null; //temporary array to store sub-category cost values.
+        double[] temp = null; //temporary array to store sub-category cost values.
         String tempNum = ""; //temporary number to be stored as a String object.
         //temporary count variable
         int count = 0;
@@ -891,7 +892,7 @@ public class CategoriesClass{
             }
         }
         //new result array the size of the count.
-        String result[] = new String[count]; //the array to return containing no null-values.
+        String[] result = new String[count]; //the array to return containing no null-values.
         for (int i = 0; i < count; i++) {
             tempNum = String.format("%.2f", temp[i]);
             result[i] = tempNum;
@@ -906,7 +907,7 @@ public class CategoriesClass{
      * @return
      */
     public double[] getSubcategoryCostsNumber(String categoryName) {
-        double temp[] = null; //temporary array to store sub-category cost values.
+        double[] temp = null; //temporary array to store sub-category cost values.
         double tempNum = 0; //temporary number to be stored as a double data type.
         //temporary count variable
         int count = 0;
@@ -963,7 +964,7 @@ public class CategoriesClass{
             }
         }
         //new result array the size of the count.
-        double result[] = new double[count]; //the array to return containing no null-values.
+        double[] result = new double[count]; //the array to return containing no null-values.
         for (int i = 0; i < count; i++) {
             //round each expense item to two decimal places.
             tempNum = Math.round(temp[i]*100.0)/100.0;
@@ -982,8 +983,8 @@ public class CategoriesClass{
     public void removeSubcategoryName(String categoryName, String subcategory) {
         int index = getSubcategoryNameIndex(categoryName, subcategory); //index where the subcategory is found.
 
-        String temp[] = null; // this temp array will store the subcategories after the desired subcategory is removed.
-        String allNames[] = null; //this allNames array will store all the subcategory names for a specific category.
+        String[] temp = null; // this temp array will store the subcategories after the desired subcategory is removed.
+        String[] allNames = null; //this allNames array will store all the subcategory names for a specific category.
         int count = 0;
 
         if (categoryName.equalsIgnoreCase("Food") && index != -1) {
@@ -1065,11 +1066,10 @@ public class CategoriesClass{
 
         if (categoryName.equalsIgnoreCase("Food") && index != -1) {
             allCosts = this.foodCosts;
-            double expenseToRemove = allCosts[index]; // expense to remove.
             temp = new double[this.NOF_Cost - 1]; // the temp size is one less since a subcategory for food is being removed.
 
             for (int i = 0; i < this.NOF_Cost; i++) {
-                if (!(allCosts[i] == expenseToRemove)) {
+                if (i != index) {
                     temp[count] = allCosts[i];
                     count++;
                 }
@@ -1078,11 +1078,10 @@ public class CategoriesClass{
             this.NOF_Cost--;
         } else if (categoryName.equalsIgnoreCase("Lifestyle") && index != -1) {
             allCosts = this.lifestyleCosts;
-            double expenseToRemove = allCosts[index]; // expense to remove.
             temp = new double[this.NOL_Cost - 1];  // the temp size is one less since a subcategory for lifestyle is being removed.
 
             for (int i = 0; i < this.NOL_Cost; i++) {
-                if (!(allCosts[i] == expenseToRemove)) {
+                if (i != index) {
                     temp[count] = allCosts[i];
                     count++;
                 }
@@ -1091,12 +1090,11 @@ public class CategoriesClass{
             this.NOL_Cost--;
         } else if (categoryName.equalsIgnoreCase("Recreation") && index != -1) {
             allCosts = this.recreationCosts;
-            double expenseToRemove = allCosts[index]; // expense to remove.
 
             temp = new double[this.NOR_Cost - 1];  // the temp size is one less since a subcategory for recreation is being removed.
 
             for (int i = 0; i < NOR_Cost; i++) {
-                if (!(allCosts[i] == expenseToRemove)) {
+                if (i != index) {
                     temp[count] = allCosts[i];
                     count++;
                 }
@@ -1105,12 +1103,11 @@ public class CategoriesClass{
             this.NOR_Cost--;
         } else if (categoryName.equalsIgnoreCase("Commute") && index != -1) {
             allCosts = this.commuteCosts;
-            double expenseToRemove = allCosts[index]; // expense to remove.
 
             temp = new double[this.NOC_Cost - 1];  // the temp size is one less since a subcategory for commute is being removed.
 
             for (int i = 0; i < this.NOC_Cost; i++) {
-                if (!(allCosts[i] == expenseToRemove)) {
+                if (i != index) {
                     temp[count] = allCosts[i];
                     count++;
                 }
@@ -1119,12 +1116,11 @@ public class CategoriesClass{
             this.NOC_Cost--;
         } else if (categoryName.equalsIgnoreCase("Housing") && index != -1) {
             allCosts = this.housingCosts;
-            double expenseToRemove = allCosts[index]; // expense to remove.
 
             temp = new double[this.NOH_Cost - 1]; // the temp size is one less since a subcategory for housing is being removed.
 
             for (int i = 0; i < NOH_Cost; i++) {
-                if (!(allCosts[i] == expenseToRemove)) {
+                if (i != index) {
                     temp[count] = allCosts[i];
                     count++;
                 }
@@ -1240,22 +1236,22 @@ public class CategoriesClass{
     /**
      * Helper method used in Class UsersBudget. Sets all sorted subcategory names. The input parameter is the sorted subcategory names.
      * @param subcategoryNames
-     * @param categoryToSort
+     * @param categoryName
      */
-    public void setSortedSubcategoryNames(String[] subcategoryNames, String categoryToSort){
-        if(categoryToSort.equalsIgnoreCase("Food")){
+    public void setSubcategoryNames(String[] subcategoryNames, String categoryName){
+        if(categoryName.equalsIgnoreCase("Food")){
             this.food = subcategoryNames;
         }
-        else if(categoryToSort.equalsIgnoreCase("Housing")){
+        else if(categoryName.equalsIgnoreCase("Housing")){
             this.housing = subcategoryNames;
         }
-        else if(categoryToSort.equalsIgnoreCase("Commute")){
+        else if(categoryName.equalsIgnoreCase("Commute")){
             this.commute = subcategoryNames;
         }
-        else if(categoryToSort.equalsIgnoreCase("Recreation")){
+        else if(categoryName.equalsIgnoreCase("Recreation")){
             this.recreation = subcategoryNames;
         }
-        else if(categoryToSort.equalsIgnoreCase("Lifestyle")){
+        else if(categoryName.equalsIgnoreCase("Lifestyle")){
             this.lifestyle = subcategoryNames;
         }
     }
@@ -1263,26 +1259,25 @@ public class CategoriesClass{
     /**
      * Helper method used in Class UsersBudget. Sets all sorted subcategory costs. The input parameter is the sorted subcategory costs.
      * @param subcategoryCosts
-     * @param categoryToSort
+     * @param categoryName
      */
-    public void setSortedSubcategoryCosts(double[] subcategoryCosts, String categoryToSort){
-        if(categoryToSort.equalsIgnoreCase("Food")){
+    public void setSubcategoryCosts(double[] subcategoryCosts, String categoryName){
+        if(categoryName.equalsIgnoreCase("Food")){
             this.foodCosts = subcategoryCosts;
         }
-        else if(categoryToSort.equalsIgnoreCase("Housing")){
+        else if(categoryName.equalsIgnoreCase("Housing")){
             this.housingCosts = subcategoryCosts;
         }
-        else if(categoryToSort.equalsIgnoreCase("Commute")){
+        else if(categoryName.equalsIgnoreCase("Commute")){
             this.commuteCosts = subcategoryCosts;
         }
-        else if(categoryToSort.equalsIgnoreCase("Recreation")){
+        else if(categoryName.equalsIgnoreCase("Recreation")){
             this.recreationCosts = subcategoryCosts;
         }
-        else if(categoryToSort.equalsIgnoreCase("Lifestyle")){
+        else if(categoryName.equalsIgnoreCase("Lifestyle")){
             this.lifestyleCosts = subcategoryCosts;
         }
     }
-
 
     /**
      * Helper method used in Class UsersBudget to get number of food subcategories.
@@ -1370,7 +1365,5 @@ public class CategoriesClass{
     public void setCategory(String category){
         this.category = category;
     }
-
-
 
 }

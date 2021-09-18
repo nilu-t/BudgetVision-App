@@ -1,9 +1,16 @@
 package CodingProject.budgetvision;
 
+import android.icu.util.ULocale;
+
 import org.junit.Test;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.Locale;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
 
@@ -751,6 +758,19 @@ public class BudgetVisionTests {
                 "\n" +
                 "Recreation:";
         assertEquals(expectedStatus,Nilushanth.getUserStatus());
+    }
+
+    //testing CurrencyConversion.java class. Testing the following currencies.
+    /*
+     * USD (USA Dollars)
+     * EUR (Euro)
+     *
+     */
+
+    @Test
+    public void test_8() throws InterruptedException {
+        UsersBudgetClass Nilushanth = new UsersBudgetClass();
+
     }
 
 }
