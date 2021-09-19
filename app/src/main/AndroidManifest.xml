@@ -29,6 +29,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".model.AddIncomePopup"
+            android:theme="@style/Theme.BudgetVision.TransparentTheme"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
+        </activity>
+
         <activity android:name=".model.AdditionalExpensePopup"
             android:theme="@style/Theme.BudgetVision.TransparentTheme"
             android:launchMode="singleTop"

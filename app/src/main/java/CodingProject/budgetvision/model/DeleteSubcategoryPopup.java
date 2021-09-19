@@ -150,7 +150,7 @@ public class DeleteSubcategoryPopup extends Activity {
     }
 
 
-    //controller method for computing the immediate status update after the subcategory is removed.
+    //method for computing the immediate status update after the subcategory is removed.
     public void immediateStatusRemoveExpense(){
         //set the confirmation text.
         String confirmation = this.user.userImmediateStatus();
@@ -158,13 +158,13 @@ public class DeleteSubcategoryPopup extends Activity {
 
     }
 
-    //controller method for closing the activity.
+    //method for closing the activity.
     public void closeActivity(){
         this.finish();
     }
 
 
-    //controller method for closing the activity manually via onclick for the popup.
+    //method for closing the activity manually via onclick for the popup.
     public void closeActivityRemoveExpManually(View view){
         this.finish();
     }

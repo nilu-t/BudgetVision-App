@@ -3,8 +3,10 @@ package CodingProject.budgetvision.controller;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.DialogInterface;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
@@ -59,16 +61,6 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView budgetVisionBottomNav = findViewById(R.id.budgetVision_navigation);
         budgetVisionBottomNav.setOnNavigationItemSelectedListener(navListener);
 
-        /**
-         * executing the background with list of gradients on the main constraint layout of the application.
-         */
-//        //commented out for now for saving my battery when running android emulator ._.
-//        ConstraintLayout mainLayout = findViewById(R.id.layout);
-//        AnimationDrawable animationDrawable = (AnimationDrawable) mainLayout.getBackground();
-//        animationDrawable.setEnterFadeDuration(2000);
-//        animationDrawable.setExitFadeDuration(4000);
-//        animationDrawable.start();
-
         /*
          * On create of main activity the the home fragment is added. Home fragment contains all the user interaction elements.
          */
@@ -112,6 +104,25 @@ public class MainActivity extends AppCompatActivity {
 //        String savedDailyBudget = savedInstanceState.getString("dailyBudgetLoad");
 //        dailyBudgetTextView.setText(savedDailyBudget);
 //    }
+
+
+    /**
+     * executing the background with list of gradients on the main constraint layout of the application.
+     */
+    public void addBackgroundAnimation(Boolean isBkgAnimated){
+
+        ConstraintLayout mainLayout = findViewById(R.id.layout);
+        AnimationDrawable animationDrawable = (AnimationDrawable) mainLayout.getBackground();
+
+        if(isBkgAnimated) {
+            animationDrawable.setEnterFadeDuration(2000);
+            animationDrawable.setExitFadeDuration(4000);
+            animationDrawable.start();
+        }
+        else{
+            animationDrawable.stop();
+        }
+    }
 
     /**
      * On navigation item selected listener for the bottom navigation view.

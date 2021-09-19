@@ -99,7 +99,7 @@
                     android:fontFamily="sans-serif-light"
                     android:gravity="bottom|center"
                     android:maxLines="1"
-                    android:text="+ Income "
+                    android:text="+/- Income "
                     android:textColor="#FF6F00"
                     android:textSize="17sp" />
 

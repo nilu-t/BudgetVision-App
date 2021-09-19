@@ -7,6 +7,18 @@
     android:layout_height="match_parent"
     android:background="#00EDD2">
 
+    <Switch
+        android:id="@+id/saveSwitchBkg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="40dp"
+        android:text="Save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.172"
+        app:layout_constraintStart_toEndOf="@+id/addBkgAnimation"
+        app:layout_constraintTop_toBottomOf="@+id/clearAllButton" />
+
     <Button
         android:id="@+id/downloadSheetBtn"
         android:layout_width="wrap_content"
@@ -104,6 +116,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/clearAllButton" />
 
+    <View
+        android:id="@+id/borderThree3"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_marginTop="88dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/clearAllButton" />
+
     <TextView
         android:id="@+id/downloadSheetLabel2"
         android:layout_width="wrap_content"
@@ -129,6 +152,19 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/borderThree" />
+
+    <TextView
+        android:id="@+id/addBkgAnimation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:text="Add Background Animation"
+        android:textColor="#FF0000"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/borderThree2" />
 
     <Spinner
         android:id="@+id/currencySpinner"

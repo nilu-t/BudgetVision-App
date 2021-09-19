@@ -186,11 +186,22 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
             }
         });
 
+        Switch saveBkgAnimationSwitch = ((Switch)(this.myInflatedView.findViewById(R.id.saveSwitchBkg)));
+
+        saveBkgAnimationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    MainActivity.getInstance().addBackgroundAnimation(true);
+                }
+                else{
+                    MainActivity.getInstance().addBackgroundAnimation(false);
+                }
+            }
+        });
 
         currencySpinner = ((Spinner)(this.myInflatedView.findViewById(R.id.currencySpinner)));
 
         saveCurrencySwitch = ((Switch)(this.myInflatedView.findViewById(R.id.saveSwitch)));
-
 
         //only execute the save switch to change currencies when the country is unique.
         //listener for the save switch.
@@ -845,9 +856,9 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
      * Helper method for currencyChanged() in SettingsFragment.java file.
      * @return
      */
-    public double[] delayAndApplyCurrencyChange(int numberOfCategories, double[] categoryCostArr){
+    public double[] delayAndApplyCurrencyChange(int numberOfSubcategories, double[] categoryCostArr){
 
-        for(int i = 0; i < numberOfCategories; i++){
+        for(int i = 0; i < numberOfSubcategories; i++){
             double conversionRate = currencyConversionObj.getConversionRate();
             categoryCostArr[i] = categoryCostArr[i] * conversionRate;
         }
@@ -872,15 +883,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         //set the selection of the currency spinner to CAD.
         defaultCurrencyPosition = allCountriesAdapter.getPosition("(Canada)");
         currencySpinner.setSelection(defaultCurrencyPosition);
-    }
-    /**
-     * This method will display a warning for changing currency after unchecking the "save" switch. The warning message will be a toast to confirm everything has been cleared.
-     * You can only change the currency once through the "save" switch.
-     * if the "save" switch is unchecked a warning message will be displayed that all subcategories will be cleared.
-     */
-    public void saveSwitchReset(){
-        Toast.makeText(getActivity().getBaseContext(), "All subcategories have been cleared. Default currency is now CAD.", Toast.LENGTH_LONG).show();
-        MainActivity.getInstance().clearAll();
     }
 
 

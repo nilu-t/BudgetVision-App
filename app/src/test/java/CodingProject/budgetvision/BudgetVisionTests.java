@@ -1,19 +1,8 @@
 package CodingProject.budgetvision;
 
-import android.icu.util.ULocale;
-
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.Locale;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import static org.junit.Assert.*;
-
 
 import CodingProject.budgetvision.model.*; /* import everything from model package */
 
@@ -737,7 +726,7 @@ public class BudgetVisionTests {
         Nilushanth.addUserAdditionalExpense("Food","gym training", 323);
         Nilushanth.addUserAdditionalExpense("Food","yoga", 145);
         Nilushanth.addUserAdditionalExpense("Food","aaaaaah", 239023);
-        
+
 
         /*
          * Nilushanth decides to stop breaking the application and decides to remove lunch subcategory entirely.
@@ -758,19 +747,6 @@ public class BudgetVisionTests {
                 "\n" +
                 "Recreation:";
         assertEquals(expectedStatus,Nilushanth.getUserStatus());
-    }
-
-    //testing CurrencyConversion.java class. Testing the following currencies.
-    /*
-     * USD (USA Dollars)
-     * EUR (Euro)
-     *
-     */
-
-    @Test
-    public void test_8() throws InterruptedException {
-        UsersBudgetClass Nilushanth = new UsersBudgetClass();
-
     }
 
 }

@@ -72,21 +72,8 @@ public class UsersBudgetClass {
 
 
     //method for decreasing the user initial income by an initial amount.
-    public void decreaseUserInitialIncome(double amount){
-        this.totalInitialIncome -= amount;
-    }
-
-
-    //method for increasing user income.
-    public void increaseUserIncome(double amountToIncreaseBy){
-        this.totalIncome += amountToIncreaseBy;
-
-    }
-
-
-    //method for decreasing user income.
-    public void decreaseUserIncome(double amountToDecreaseBy){
-        this.totalIncome -= amountToDecreaseBy;
+    public void decreaseUserInitialIncome(double amountToDecreaseBy){
+        this.totalInitialIncome -= amountToDecreaseBy;
     }
 
 

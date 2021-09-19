@@ -97,6 +97,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         CardView lifestyleCard = (CardView) this.myInflatedView.findViewById(R.id.lifestyleCard);
         lifestyleCard.setOnClickListener(this);
 
+        //set an onclick listener for the income card
+        CardView incomeCard = (CardView) this.myInflatedView.findViewById(R.id.incomeCard);
+        incomeCard.setOnClickListener(this);
+
         /*
          * Adding an OnClick listener for the all expenses button.
          */
@@ -125,7 +129,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
         switch (v.getId()) {
             /*
-             * All the cases for the food card clicked.
+             * All the cases for cards clicked.
              */
             case R.id.foodCard:
                 computeFoodCard(user);
@@ -143,6 +147,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             case R.id.lifestyleCard:
                 computeLifestyleCard(user);
                 break;
+            case R.id.incomeCard:
+                computeIncomeCard();
+                break;
+
             /*
              * The case for view all expenses button clicked.
              */
@@ -189,12 +197,21 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     /*
-     * This method will start another activity in their respective Category popup class.
+     * This method will start another activity in their ViewSubcategoryPopup class.
      */
     public void popUpSubcategory() {
         Intent intent = new Intent(getActivity(), ViewSubcategoryPopup.class);
         startActivity(intent);
     }
+
+    /*
+     * This method will start another activity in the AddIncomePopup class.
+     */
+    public void popUpAddIncome(){
+        Intent intent = new Intent(getActivity(), AddIncomePopup.class);
+        startActivity(intent);
+    }
+
 
     /*
      * This method will start another activity in the ViewAllExpensesPopup class. Executes OnClick.
@@ -256,17 +273,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     }
 
+    //controller method when compute income card is clicked.
+    public void computeIncomeCard(){
+        popUpAddIncome();
+
+    }
+
     public void setCategory(UsersBudgetClass user){
         user.categoriesObject().setCategory(this.category);
     }
 
-
-    //controller method when compute income card is clicked.
-    public void computeIncomeCard(View view){
-
-        //call the popUpWindowSubcategory method.
-        //popUpWindowSubcategory();
-    }
 
     //helper method to return the current category used in ViewSubcategoryPopup.
 //    public String getCategory(){
