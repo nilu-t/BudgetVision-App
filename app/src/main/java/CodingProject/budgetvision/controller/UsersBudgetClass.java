@@ -103,7 +103,6 @@ public class UsersBudgetClass extends Application{
         this();
         this.userCategory = userCategory; //setting user category object.
         this.currencyConversionObj = currencyConversionObj; //setting currency conversion object.
-        this.userCategory.setUserComponent(this.getAppComponent());
     }
 
     /**
@@ -145,14 +144,19 @@ public class UsersBudgetClass extends Application{
      */
     public void addUserSubcategory(String subCategoryToAdd, double subCategoryCost){
 
+        this.categoriesObject().setCallback((MainActivity) this.userCallback); //set the user call back in the categories object.
+
+        this.categoriesObject().setCurrencySymbol(getCurrencySymbol());
+
         //add the subcategory and the expense associated with it.
         this.userCategory.addSubCategory(this.categoryName, subCategoryToAdd,subCategoryCost);
 
         if(!(this.userCategory.isError())) {
+
             //increase the total monthly expenses due to adding the subcategory.
             this.totalMonthlyExpenses += subCategoryCost;
 
-            this.immediateStatus = "You Have Added " + subCategoryToAdd + " for " + this.userComponent.getMyMainUser().currencySymbol + subCategoryCost;
+            this.immediateStatus = "You Have Added " + subCategoryToAdd + " for " + getCurrencySymbol() + subCategoryCost;
         }
         else{
             this.immediateStatus =  this.userCategory.getErrorMSG();
@@ -250,7 +254,7 @@ public class UsersBudgetClass extends Application{
         //increase the total user income due to adding additional expense if and only if there is no error in user adding the additional expense.
         if(!(this.userCategory.isError())) {
             this.totalMonthlyExpenses += additionalExpense;
-            this.immediateStatus = "You Have Added Additional Expense To " + subcategoryName + " for " + this.userComponent.getMyMainUser().currencySymbol + additionalExpense;
+            this.immediateStatus = "You Have Added Additional Expense To " + subcategoryName + " for " + getCurrencySymbol() + additionalExpense;
         }
         else{
             this.immediateStatus =  this.userCategory.getErrorMSG();

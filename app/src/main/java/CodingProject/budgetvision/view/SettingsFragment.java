@@ -464,13 +464,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                                     "pagenum=CENTER&"+
                                     "attachment=true&"+
                                     "access_token="+accessToken;
-
-                            /*
-                             * Start a new activity which tells the user that they are signed in to google successfully.
-                             */
-                            Intent intent = new Intent(getActivity(), LoginSuccessfulPopup.class);
-                            startActivity(intent);
-
                         }
                         catch (JSONException e) {
                             e.printStackTrace();
@@ -479,7 +472,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        System.out.println("FAILURE DETECTED FROM onFaliure(): " + call);
+
                     }
                 });
 
@@ -506,6 +499,12 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                     SignInButton signInButton = (SignInButton) myInflatedView.findViewById(R.id.sign_in_button);
                     signInButton.setEnabled(false);
                 }
+
+                /*
+                 * Start a new activity which tells the user that they are signed in to google successfully.
+                 */
+                Intent intent = new Intent(getActivity(), LoginSuccessfulPopup.class);
+                startActivity(intent);
 
 
             } catch (ApiException e) {

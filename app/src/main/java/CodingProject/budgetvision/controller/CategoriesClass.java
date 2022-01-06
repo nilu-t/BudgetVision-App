@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import CodingProject.budgetvision.view.MainActivity;
+
 @Singleton
 public class CategoriesClass{
 
@@ -90,6 +92,7 @@ public class CategoriesClass{
     String uniqueId;
 
     UserBudgetComponent userComponent;
+    private MainActivity callBack;
 
     /**
      * empty Categories constructor to intitialize all the categories names and costs.
@@ -112,13 +115,6 @@ public class CategoriesClass{
         this.recreationCosts = new double[MAX_NOR];
     }
 
-    /**
-     * This method sets the UserComponent which is done from the UsersBudgetClass default constructor.
-     * @param userComponent
-     */
-    public void setUserComponent(UserBudgetComponent userComponent){
-        this.userComponent = userComponent;
-    }
 
     /**
      * This helper method is used by the Settings Fragment to set the user unique Id.
@@ -128,7 +124,9 @@ public class CategoriesClass{
         this.uniqueId = uniqueId;
     }
 
-
+    public void setCallback(MainActivity callBack){
+        this.callBack = callBack;
+    }
     /**
      * method for adding category.
      * @param categoryToAdd is the name of the category to be added.
@@ -145,10 +143,6 @@ public class CategoriesClass{
      * @param subCategoryCost is the cost associated with the subcategory.
      */
     public void addSubCategory(String categoryName, String subCategoryToAdd, double subCategoryCost) {
-
-        UsersBudgetClass user = this.userComponent.getMyMainUser();
-
-        this.currencySymbol = user.getCurrencySymbol();
 
         this.isFatalError = this.isFatalError || (this.NOF >= MAX_NOF || this.NOH >= MAX_NOH || this.NOC >= MAX_NOC|| this.NOL >= MAX_NOL || this.NOR >= MAX_NOR);
         /*
@@ -182,7 +176,7 @@ public class CategoriesClass{
                     //add the subcategories and cost to the BudgetVision user google sheet if and only if there are no duplicate subcategories or errors detected.
                     if(!isError() && !isDuplicateSubcategory) {
                         try {
-                           user.addSubcategoriesToSheetFromActivity(categoryName, subCategoryToAdd, cost);
+                            callBack.addSubcategoriesToSheet(categoryName, subCategoryToAdd, cost);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
