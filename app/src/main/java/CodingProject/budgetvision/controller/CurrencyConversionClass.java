@@ -18,15 +18,14 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 
+/**
+ * HTTP call is made through OkHttpClient and then JSoup is used to HTML parse conversion rates from Bank Of Canada.
+ * This class will take the daily budget, total income etc. and convert from CAD to desired currency.
+ * By default the currency of BudgetVision will be CAD (Canadian Dollars).
+ * This class will use previous web scraping to get the conversion rates for CAD to another currency. Also, currencies are formatted.
+ */
 @Singleton
 public class CurrencyConversionClass {
-
-    /**
-     * HTTP call is made through OkHttpClient and then JSoup is used to HTML parse conversion rates from Bank Of Canada.
-     * This class will take the daily budget, total income etc. and convert from CAD to desired currency.
-     * By default the currency of BudgetVision will be CAD (Canadian Dollars).
-     * This class will use previous web scraping to get the conversion rates for CAD to another currency. Also, currencies are formatted.
-     */
 
     private final OkHttpClient client;
     private double afterConversionValue;

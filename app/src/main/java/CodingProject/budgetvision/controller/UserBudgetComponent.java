@@ -5,13 +5,12 @@ import dagger.Component;
 
 @Singleton
 @Component
+
+/**
+ * @Singleton annotation is used because UsersBudgetClass scope is limited to the lifetime of one UsersBudgetClass object.
+ * This interface acts as "the injector".
+ */
 public interface UserBudgetComponent {
-
-    /**
-     * @Singleton annotation is used because UsersBudgetClass scope is limited to the lifetime of one UsersBudgetClass object.
-     * This interface acts as "the injector".
-     */
-
 
     /**
      * @return UsersBudgetClass main user object.

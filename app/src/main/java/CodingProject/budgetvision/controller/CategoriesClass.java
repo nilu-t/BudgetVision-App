@@ -7,18 +7,18 @@ import javax.inject.Singleton;
 
 import CodingProject.budgetvision.view.MainActivity;
 
+
+/**
+ * This class is for creating functionality for the budget categories.
+ * All the categories are assumed to be monthly categories. Thus all the expenses for this class are monthly expenses.
+ * Categories will be classified as Food, Housing, Lifestyle, etc.
+ * In total, so far there are 5 categories. Which are food, housing, lifestyle, commute and recreation.
+ * Subcategories are contained in the Category.
+ * This class also adds the error statements to the user if they do not follow conventions of the app.
+ * TODO: Possible 6th category called Miscellaneous category?
+ */
 @Singleton
 public class CategoriesClass{
-
-    /**
-     * This class is for creating functionality for the budget categories.
-     * All the categories are assumed to be monthly categories. Thus all the expenses for this class are monthly expenses.
-     * Categories will be classified as Food, Housing, Lifestyle, etc.
-     * In total, so far there are 5 categories. Which are food, housing, lifestyle, commute and recreation.
-     * Subcategories are contained in the Category.
-     * This class also adds the error statements to the user if they do not follow conventions of the app.
-     * TODO: Possible 6th category called Miscellaneous category?
-     */
 
     private double currentExpenses; //current expenses.
 

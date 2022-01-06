@@ -19,12 +19,7 @@ import CodingProject.budgetvision.controller.UsersBudgetClass;
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
 
-     /*
-    TODO : saving and loading data to the app of user status.
-    DONE : Create custom suggestions to hint what types of subcategories the user can input.
-     */
-
-    String category = ""; //stores the current category.
+    private String category = ""; //stores the current category.
 
     private View myInflatedView;
 

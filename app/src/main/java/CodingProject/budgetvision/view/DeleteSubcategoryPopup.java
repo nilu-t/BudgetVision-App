@@ -18,7 +18,7 @@ import CodingProject.budgetvision.controller.UsersBudgetClass;
 
 public class DeleteSubcategoryPopup extends Activity {
 
-    UsersBudgetClass user;
+    private UsersBudgetClass user;
     private String categorySelected;
     private String subcategoryChosen;
     private String userName;

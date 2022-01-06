@@ -1,6 +1,5 @@
 package CodingProject.budgetvision.controller;
 
-import android.app.Activity;
 import android.app.Application;
 import android.os.Build;
 import android.os.Handler;
@@ -21,13 +20,13 @@ import javax.inject.Singleton;
 
 import CodingProject.budgetvision.view.MainActivity;
 
+/**
+ * This class is for the controls for the users and determining their budgets.
+ * this class will implement the budgets for the App owner (main user).
+ * The instance for this class is only created once in its lifetime via @Singleton annotation from Dagger2 open source library.
+ */
 @Singleton
 public class UsersBudgetClass extends Application{
-    /**
-     * This class is for the controls for the users and determining their budgets.
-     * this class will implement the budgets for the App owner (main user).
-     * The instance for this class is only created once in its lifetime via @Singleton annotation from Dagger2 open source library.
-     */
 
     /*
      * income, total balance and expenses.
