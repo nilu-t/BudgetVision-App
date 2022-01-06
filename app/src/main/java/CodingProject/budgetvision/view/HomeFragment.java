@@ -1,4 +1,4 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.view;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,9 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,7 +14,8 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import CodingProject.budgetvision.R;
-import CodingProject.budgetvision.controller.MainActivity;
+import CodingProject.budgetvision.controller.UserBudgetComponent;
+import CodingProject.budgetvision.controller.UsersBudgetClass;
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
 
@@ -34,7 +33,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
      * All of the arrays are public static final declaration as they are non-modified names.
      * Thus, they the 5 String array hints are accessible for the entire class.
      */
-
     public static final String [] foodSubcategoryHints = {
             "Beverages","Bakery", "Breakfast", "Candy", "Dinner", "Deserts",
             "Fast Food", "Food delivery", "Groceries","Lunch", "Pastries", "Pet food", "Restaurant",
@@ -55,16 +53,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     };
 
     public static final String [] lifestyleSubcategoryHints= {
-            "Bathing & Hygiene", "Child Care",  "Clothing", "College/University", "Cosmetics", "Dermatologist care", "Dental care", "Doctor", "Dry Cleaning", "First aid supplies",
+            "Bathing & Hygiene", "Child Care",  "Clothing", "College/University", "Cosmetics", "Dermatologist", "Dental care", "Doctor", "Dry Cleaning", "First aid supplies",
             "Gym Membership", "Hair products", "Heat/gas", "Health Insurance", "Hotel", "Household supplies",  "Home security costs", "Laundry",
-            "Life insurance", "Medical insurance", "Pet insurance", "Prescriptions", "Makeup costs", "Optometrist & glasses",
+            "Life insurance", "Medical insurance", "Pet insurance", "Prescriptions", "Makeup costs", "Optometrist",
             "Salon/ barber", "Spa & massage", "Sports", "Veterinary care", "Vision insurance"
 
     };
 
     public static final String [] recreationSubcategoryHints= {
-            "Arts", "Bowling", "Cinema", "Concerts", "Gaming costs", "Magazine Subscriptions", "Music Streaming (Pandora, etc)", "Movie Rentals", "Movie Theater Tickets", "Newspaper & Magazines",
-            "Netflix/Hulu", "Season Tickets", "Software subscriptions", "TV subscription", "Vacation Costs", "Video Streaming (Netflix, etc)"
+            "Arts", "Bowling", "Cinema", "Concerts", "Gaming costs", "Music Streaming", "Movie Rentals", "Movie Tickets", "Newspaper & Magazines"
+            , "Season Tickets","TV subscription", "Vacation Costs", "Video Streaming"
     };
 
 
@@ -125,7 +123,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
-        UsersBudgetClass user = MainActivity.getInstance().getUser(); //users object from main activity.
+
+        UserBudgetComponent userComponent = ((UsersBudgetClass)getActivity().getApplication()).getAppComponent();
+        UsersBudgetClass user = userComponent.getMyMainUser();
 
         switch (v.getId()) {
             /*
@@ -170,21 +170,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    /* this accessor retrieves input entered on the text view  */
-    private String getInputOfTextField(int id) {
-        View view = (TextView) this.myInflatedView.findViewById(id);
-        EditText editText = (EditText) view;
-        String input = editText.getText().toString();
-        return input;
-    }
-
-
     //method to create the popup windows.
     /*
      * This method will start another activity in the AddSubcategoryPopup class. Executes OnClick.
      */
     public void popUpWindowAdd(){
         Intent intent = new Intent(getActivity(), AdditionalExpensePopup.class);
+        intent.putExtra("userName_extra","#Default");
         startActivity(intent);
     }
 
@@ -193,6 +185,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
      */
     public void popUpWindowRemove(){
         Intent intent = new Intent(getActivity(), DeleteSubcategoryPopup.class);
+        intent.putExtra("userName_extra","#Default");
         startActivity(intent);
     }
 
@@ -201,6 +194,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
      */
     public void popUpSubcategory() {
         Intent intent = new Intent(getActivity(), ViewSubcategoryPopup.class);
+        intent.putExtra("categoryName_extra",this.category);
+        intent.putExtra("userName_extra","#Default");
         startActivity(intent);
     }
 
@@ -208,7 +203,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
      * This method will start another activity in the AddIncomePopup class.
      */
     public void popUpAddIncome(){
-        Intent intent = new Intent(getActivity(), AddIncomePopup.class);
+        Intent intent = new Intent(getActivity(), AddOrRemoveIncomePopup.class);
         startActivity(intent);
     }
 
@@ -283,11 +278,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         user.categoriesObject().setCategory(this.category);
     }
 
-
-    //helper method to return the current category used in ViewSubcategoryPopup.
-//    public String getCategory(){
-//        return this.category;
-//    }
+    /**
+     * This method returns the category of the card selected.
+     * @return
+     */
+    public String getCategory(){
+        return this.category;
+    }
 
 
 }

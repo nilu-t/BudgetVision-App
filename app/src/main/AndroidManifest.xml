@@ -13,14 +13,17 @@
     </queries>
 
     <application
+        android:name=".controller.UsersBudgetClass"
         android:allowBackup="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BudgetVision">
 
-        <activity android:name=".controller.MainActivity"
+        <activity android:name=".view.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -29,37 +32,37 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".model.AddIncomePopup"
+        <activity android:name=".view.AddOrRemoveIncomePopup"
             android:theme="@style/Theme.BudgetVision.TransparentTheme"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
         </activity>
 
-        <activity android:name=".model.AdditionalExpensePopup"
+        <activity android:name=".view.AdditionalExpensePopup"
             android:theme="@style/Theme.BudgetVision.TransparentTheme"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
         </activity>
 
-        <activity android:name=".model.DeleteSubcategoryPopup"
+        <activity android:name=".view.DeleteSubcategoryPopup"
             android:theme="@style/Theme.BudgetVision.TransparentTheme"
              android:launchMode="singleTop"
             android:screenOrientation="portrait">
         </activity>
 
-        <activity android:name=".model.ViewSubcategoryPopup"
+        <activity android:name=".view.ViewSubcategoryPopup"
             android:theme="@style/Theme.BudgetVision.TransparentTheme"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
         </activity>
 
-        <activity android:name=".model.ViewAllExpensesPopup"
+        <activity android:name=".view.ViewAllExpensesPopup"
             android:theme="@style/Theme.BudgetVision.TransparentTheme"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
         </activity>
 
-        <activity android:name=".model.LoginSuccessfulPopup"
+        <activity android:name=".view.LoginSuccessfulPopup"
             android:theme="@style/Theme.BudgetVision.TransparentTheme"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">

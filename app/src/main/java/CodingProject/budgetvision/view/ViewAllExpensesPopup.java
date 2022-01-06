@@ -1,6 +1,7 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.view;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -9,10 +10,13 @@ import android.view.View;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.Locale;
 
 import CodingProject.budgetvision.R;
-import CodingProject.budgetvision.controller.MainActivity;
+import CodingProject.budgetvision.controller.UserBudgetComponent;
+import CodingProject.budgetvision.controller.UsersBudgetClass;
 
 public class ViewAllExpensesPopup extends Activity implements TextToSpeech.OnInitListener {
 
@@ -20,8 +24,9 @@ public class ViewAllExpensesPopup extends Activity implements TextToSpeech.OnIni
      * This "popup" Class allows for the user to view all the valid subcategories and expenses.
      * This Class also contains the TextToSpeech listener interface to allow the user to listen to the subcategories and expenses they added.
      */
-    private UsersBudgetClass user = MainActivity.getInstance().getUser(); //users object from main activity.
+    private UsersBudgetClass user;
     private String allExpenses;
+    private String userName;
     private TextToSpeech tts;
     private boolean isTTSInitialized;
 
@@ -29,7 +34,6 @@ public class ViewAllExpensesPopup extends Activity implements TextToSpeech.OnIni
     public ViewAllExpensesPopup(){
 
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,21 @@ public class ViewAllExpensesPopup extends Activity implements TextToSpeech.OnIni
 
         //the window will be 80% of the screen width and height.
         getWindow().setLayout((int) (width *.8),(int) (height*.8));
+
+        Intent i = getIntent();
+        this.userName = i.getStringExtra("userName_extra");
+
+        //main user object
+        UserBudgetComponent userComponent = ((UsersBudgetClass)getApplication()).getAppComponent();
+        this.user = userComponent.getMyMainUser();
+
+        /*
+         * if the user object is not the main user object, then retrieve the other user object.
+         * Before the userName is checked to see if it does not equal "#Default" it is first checked if the userName is not null.
+         */
+        if(this.userName != null && ! this.userName.equalsIgnoreCase("#Default")){
+            this.user = this.user.getUserObjectOfName(this.userName);
+        }
 
         //call the update all expenses method on create.
         updateAllExpenses();
@@ -65,6 +84,7 @@ public class ViewAllExpensesPopup extends Activity implements TextToSpeech.OnIni
     }
 
     //method for sorting all categories by expenses for the user.
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortExpenses(View view){
         String sortType = getItemSelected(R.id.sortOptions);
         String categoryToSort = getItemSelected(R.id.categoryOptions);
@@ -74,6 +94,7 @@ public class ViewAllExpensesPopup extends Activity implements TextToSpeech.OnIni
     }
 
     //overloaded helper method for sorting the expenses in a specific order.
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortExpenses(String sortType, String categoryToSort){
         this.user.sortAllSubcategoriesByExpense(sortType,categoryToSort);
         String sortedAscendingExpenses = this.user.getUserStatus();

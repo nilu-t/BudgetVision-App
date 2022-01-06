@@ -1,6 +1,7 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.view;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -12,13 +13,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import CodingProject.budgetvision.R;
-import CodingProject.budgetvision.controller.MainActivity;
+import CodingProject.budgetvision.controller.UserBudgetComponent;
+import CodingProject.budgetvision.controller.UsersBudgetClass;
 
 public class DeleteSubcategoryPopup extends Activity {
 
-    UsersBudgetClass user = MainActivity.getInstance().getUser();
+    UsersBudgetClass user;
     private String categorySelected;
     private String subcategoryChosen;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,22 @@ public class DeleteSubcategoryPopup extends Activity {
 
         //the window will be 80% of the screen width and height.
         getWindow().setLayout((int) (width *.8),(int) (height*.8));
+
+        //get the user name from the intent.
+        Intent i = getIntent();
+        userName = i.getStringExtra("userName_extra");
+
+        //main user object
+        UserBudgetComponent userComponent = ((UsersBudgetClass)getApplication()).getAppComponent();
+        this.user = userComponent.getMyMainUser();
+
+        /*
+         * if the user object is not the main user object, then retrieve the other user object.
+         * Before the userName is checked to see if it does not equal "#Default" it is first checked if the userName is not null.
+         */
+        if(this.userName != null && ! this.userName.equalsIgnoreCase("#Default")){
+            this.user = this.user.getUserObjectOfName(this.userName);
+        }
 
         Spinner categoriesSpinner = (Spinner) findViewById(R.id.categoryOptions3);
 
@@ -119,44 +138,33 @@ public class DeleteSubcategoryPopup extends Activity {
         //remove the user expense.
         user.removeUserSubcategory(this.categorySelected, this.subcategoryChosen);
 
-        String confirmation = this.user.userImmediateStatus();
-        if(!(confirmation.equalsIgnoreCase("Error: Subcategory " + this.subcategoryChosen + " Does Not Exist For Category " + this.categorySelected))){
-            //close the activity now that the expense has been added. To prevent user from spamming expenses for the same subcategory simultaneously.
-            closeActivity();
-
-            //update the total income now.
-            updateTotalIncome();
-
-            //update the daily budget now.
-            updateDailyBudget();
-        }
-        else if((confirmation.equalsIgnoreCase("Error: Subcategory " + this.subcategoryChosen + " Does Not Exist For Category " + this.categorySelected))){
-            immediateStatusRemoveExpense();
-        }
+        immediateStatusRemoveExpense();
 
     }
-
-    //method for calculating the total income after the subcategory was deleted.
-    public void updateTotalIncome(){
-        //call the update total income method in main activity since the user income text is in main activity layout.
-        MainActivity.getInstance().updateTotalIncome();
-    }
-
-
-    //method for calculating the daily budget after the subcategory was deleted.
-    public void updateDailyBudget(){
-        //call the update daily budget method in main activity since the user daily budget text is in the main activity layout.
-        MainActivity.getInstance().updateDailyBudget();
-    }
-
 
     //method for computing the immediate status update after the subcategory is removed.
     public void immediateStatusRemoveExpense(){
         //set the confirmation text.
         String confirmation = this.user.userImmediateStatus();
         setContentsOfTextView(R.id.removeExpenseConfirmationTxt, confirmation);
+        updateTotalIncome();
+        updateDailyBudget();
 
     }
+
+    //method for calculating the total income after the subcategory was deleted.
+    public void updateTotalIncome(){
+        //call the update total income method in main activity since the user income text is in main activity layout.
+        this.user.updateTotalIncomeFromActivity();
+    }
+
+
+    //method for calculating the daily budget after the subcategory was deleted.
+    public void updateDailyBudget(){
+        //call the update daily budget method in main activity since the user daily budget text is in the main activity layout.
+        this.user.updateDailyBudgetFromActivity();
+    }
+
 
     //method for closing the activity.
     public void closeActivity(){

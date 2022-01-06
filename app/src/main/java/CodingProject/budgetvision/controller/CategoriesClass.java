@@ -1,9 +1,11 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.controller;
 
 import java.io.IOException;
 
-import CodingProject.budgetvision.controller.MainActivity;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class CategoriesClass{
 
     /**
@@ -72,14 +74,13 @@ public class CategoriesClass{
      * 1. Adding more than the maximum number of sub-categories for a specific category. (FATAL ERROR)
      * 2. removing a non-existing sub-category.
      * 3. Adding an expense to a non-existing sub-category.
-     * 4. non-positive expense is added.
+     * 4. Non-positive expense is added.
      */
     private String errorMSG; //current error message.
     private boolean isError; //boolean variable to check if there is any non-fatal error.
     private boolean isFatalError; //boolean variable to check for fatal error.
     private boolean isDuplicateSubcategory; //check if there is a duplicate subcategory.
 
-    private double currencyRate = 1; //currency rate initially 1 since default currency is CAD.
     private String currencySymbol; // the currency symbol variable obtained from MainActivity.java class.
 
     //thread to be run in the background used for executing the google sheet commands.
@@ -88,9 +89,13 @@ public class CategoriesClass{
     //user unique Id from the SettingsFragment.
     String uniqueId;
 
+    UserBudgetComponent userComponent;
+
     /**
      * empty Categories constructor to intitialize all the categories names and costs.
+     * @Inject annotation is used for Dagger to instantiate the categories object.
      */
+    @Inject
     public CategoriesClass() {
         //instantiating names related categories and sub-categories arrays to their maximum length.
         this.food = new String[MAX_NOF];
@@ -108,14 +113,11 @@ public class CategoriesClass{
     }
 
     /**
-     * Categories constructor; with a Category as parameter. This constructor will create a new categories object each time it is called.
-     * @param category
+     * This method sets the UserComponent which is done from the UsersBudgetClass default constructor.
+     * @param userComponent
      */
-    public CategoriesClass(String category) {
-        //calling the empty constructor to instantiate all of the arrays to their maximum desired length.
-        this();
-        this.category = category;
-
+    public void setUserComponent(UserBudgetComponent userComponent){
+        this.userComponent = userComponent;
     }
 
     /**
@@ -128,8 +130,8 @@ public class CategoriesClass{
 
 
     /**
-     * method for adding category without calling the Categories constructor with String parameter.
-     * @param categoryToAdd
+     * method for adding category.
+     * @param categoryToAdd is the name of the category to be added.
      */
     public void addCategory(String categoryToAdd){
         this.category = categoryToAdd;
@@ -138,21 +140,27 @@ public class CategoriesClass{
 
     /**
      * method for adding sub-categories in an existing category.
-     * the first parameter is a category name to be used to find a duplicate subcategory.
-     * Since a user can click on different category cards this.category is not ideal to use to compare for duplicate categories.
-     * However, this.category is ideal to use immediately after the addCategory("category") constructor is called.
-     * @param categoryName
-     * @param subCategoryToAdd
-     * @param subCategoryCost
+     * @param categoryName is a category name to be used to find a duplicate subcategory.
+     * @param subCategoryToAdd is the subcategory name to be added.
+     * @param subCategoryCost is the cost associated with the subcategory.
      */
     public void addSubCategory(String categoryName, String subCategoryToAdd, double subCategoryCost) {
-        this.currencySymbol = MainActivity.getInstance().getUser().getCurrencySymbol();
 
-        //reset the error before the subcategory is added. Calling this method will not reset any fatal errors.
-        resetError();
+        UsersBudgetClass user = this.userComponent.getMyMainUser();
+
+        this.currencySymbol = user.getCurrencySymbol();
+
+        this.isFatalError = this.isFatalError || (this.NOF >= MAX_NOF || this.NOH >= MAX_NOH || this.NOC >= MAX_NOC|| this.NOL >= MAX_NOL || this.NOR >= MAX_NOR);
+        /*
+         * reset the error before the subcategory is added. Calling this method will not reset any fatal errors.
+         * Only reset the error if no fatal errors, i.e, the maximum number of subcategories are not reached for any category.
+         */
+        if(!this.isFatalError) {
+            resetError();
+        }
 
         this.subCategory = subCategoryToAdd.trim(); //remove the trailing and leading whitespaces if-any from the user inputted subcategory to be added.
-        this.subCategoryCost = subCategoryCost * this.currencyRate;
+        this.subCategoryCost = subCategoryCost;
         String[] tempNames; //temp array stores all names.
         double[] tempCosts; //temp array stores all costs.
 
@@ -174,7 +182,7 @@ public class CategoriesClass{
                     //add the subcategories and cost to the BudgetVision user google sheet if and only if there are no duplicate subcategories or errors detected.
                     if(!isError() && !isDuplicateSubcategory) {
                         try {
-                            MainActivity.getInstance().addSubcategoriesToSheet(categoryName, subCategoryToAdd, cost);
+                           user.addSubcategoriesToSheetFromActivity(categoryName, subCategoryToAdd, cost);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -190,7 +198,7 @@ public class CategoriesClass{
         Another example, Category is Lifestyle and sub-category could be Gym.
         etc for all Categories and sub-categories...
          */
-        if (this.category.equalsIgnoreCase("Food") && !isDuplicateSubcategory && !isFatalError) {
+        if (this.category.equalsIgnoreCase("Food") && !isDuplicateSubcategory) {
             tempNames = this.food; //temp array stores all the current values of food names.
             tempCosts = this.foodCosts;  //temp array stores all the current values of food costs.
 
@@ -206,9 +214,10 @@ public class CategoriesClass{
                     this.food[i] = tempNames[i];
                 }
                 this.food[this.NOF] = this.subCategory;
+                this.NOF++; //increment the total number of food subcategories.
+
             } else if (this.NOF >= MAX_NOF) {
-                addError("Error: Maximum Number of Food Subcategories " + this.MAX_NOF + "Reached !\nClear Food Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Food Subcategories " + this.MAX_NOF + " reached !\nClear Food Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
             }
             if (this.NOF_Cost < MAX_NOF) {
                 this.foodCosts = new double[MAX_NOF];
@@ -217,15 +226,14 @@ public class CategoriesClass{
                     this.foodCosts[i] = tempCosts[i];
                 }
                 this.foodCosts[this.NOF_Cost] = this.subCategoryCost;
+                this.NOF_Cost++; //increment the total number of food subcategories costs.
+
             } else if (this.NOF_Cost >= MAX_NOF) {
-                addError("Error: Maximum Number of Food Subcategories " + this.MAX_NOF + "Reached !\nClear Food Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Food Subcategories " + this.MAX_NOF + " reached !\nClear Food Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
             }
-            this.NOF++; //increment the total number of food subcategories.
-            this.NOF_Cost++; //increment the total number of food subcategories costs.
         }
 
-        else if (this.category.equalsIgnoreCase("Housing") && !isDuplicateSubcategory && !isFatalError) {
+        else if (this.category.equalsIgnoreCase("Housing") && !isDuplicateSubcategory) {
             tempNames = this.housing;  //temp array stores all the current values of housing names.
             tempCosts = this.housingCosts; //temp array stores all the current values of housing costs.
             /*
@@ -238,9 +246,10 @@ public class CategoriesClass{
                     this.housing[i] = tempNames[i];
                 }
                 this.housing[this.NOH] = this.subCategory;
+                this.NOH++; //increment the total number of housing subcategories.
+
             } else if (this.NOH >= MAX_NOH) {
-                addError("Error: Maximum Number of Housing Subcategories " + this.MAX_NOH + "Reached !\nClear Housing Subcategories To Add Again"); //add the error message for exceeding the maximum number of housing sub-categories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Housing Subcategories " + this.MAX_NOH + " reached !\nClear Housing Subcategories To Add Again"); //add the error message for exceeding the maximum number of housing sub-categories.
             }
             if (this.NOH_Cost < MAX_NOF) {
                 this.housingCosts = new double[MAX_NOH];
@@ -249,14 +258,13 @@ public class CategoriesClass{
                     this.housingCosts[i] = tempCosts[i];
                 }
                 this.housingCosts[this.NOH_Cost] = this.subCategoryCost;
+                this.NOH_Cost++; //increment the total number of housing subcategories costs.
+
             } else if (this.NOH_Cost >= MAX_NOH) {
-                addError("Error: Maximum Number of Housing Subcategories " + this.MAX_NOH + "Reached !\nClear Housing Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Housing Subcategories " + this.MAX_NOH + " reached !\nClear Housing Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
             }
-            this.NOH++; //increment the total number of housing subcategories.
-            this.NOH_Cost++; //increment the total number of housing subcategories costs.
         }
-        else if (this.category.equalsIgnoreCase("Lifestyle") && !isDuplicateSubcategory && !isFatalError) {
+        else if (this.category.equalsIgnoreCase("Lifestyle") && !isDuplicateSubcategory ) {
             tempNames = this.lifestyle; //temp array stores all the current values of lifestyle names.
             tempCosts = this.lifestyleCosts;  //temp array stores all the current values of lifestyle costs.
             /*
@@ -269,9 +277,9 @@ public class CategoriesClass{
                     this.lifestyle[i] = tempNames[i];
                 }
                 this.lifestyle[this.NOL] = this.subCategory;
+                this.NOL++; //increment the total number of lifestyle subcategories.
             } else if (this.NOL >= MAX_NOL) {
-                addError("Error: Maximum Number of Lifestyle Subcategories " + this.MAX_NOL + "Reached !\nClear Lifestyle Subcategories To Add Again"); //add the error message for exceeding the maximum number of lifestyle sub-categories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Lifestyle Subcategories " + this.MAX_NOL + " reached !\nClear Lifestyle Subcategories To Add Again"); //add the error message for exceeding the maximum number of lifestyle sub-categories.
             }
             if (this.NOL_Cost < MAX_NOF) {
                 this.lifestyleCosts = new double[MAX_NOL];
@@ -280,15 +288,14 @@ public class CategoriesClass{
                     this.lifestyleCosts[i] = tempCosts[i];
                 }
                 this.lifestyleCosts[this.NOL_Cost] = this.subCategoryCost;
+                this.NOL_Cost++; //increment the total number of lifestyle subcategories costs.
+
             } else if (this.NOL_Cost >= MAX_NOL) {
-                addError("Error: Maximum Number of Lifestyle Subcategories " + this.MAX_NOL + "Reached !\nClear Lifestyle Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Lifestyle Subcategories " + this.MAX_NOL + " reached !\nClear Lifestyle Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
             }
-            this.NOL++; //increment the total number of lifestyle subcategories.
-            this.NOL_Cost++; //increment the total number of lifestyle subcategories costs.
         }
 
-        else if (this.category.equalsIgnoreCase("Commute") && !isDuplicateSubcategory && !isFatalError) {
+        else if (this.category.equalsIgnoreCase("Commute") && !isDuplicateSubcategory ) {
             tempNames = this.commute; //temp array stores all the current values of commute names.
             tempCosts = this.commuteCosts;  //temp array stores all the current values of commute costs.
             /*
@@ -301,9 +308,10 @@ public class CategoriesClass{
                     this.commute[i] = tempNames[i];
                 }
                 this.commute[this.NOC] = this.subCategory;
+                this.NOC++; //increment the total number of commute subcategories.
+
             } else if (this.NOC >= MAX_NOC) {
-                addError("Error: Maximum Number of Commute Subcategories " + this.MAX_NOC + "Reached !\nClear Commute Subcategories To Add Again"); //add the error message for exceeding the maximum number of commute subcategories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Commute Subcategories " + this.MAX_NOC + " reached !\nClear Commute Subcategories To Add Again"); //add the error message for exceeding the maximum number of commute subcategories.
             }
             if (this.NOC_Cost < MAX_NOC) {
                 this.commuteCosts = new double[MAX_NOC];
@@ -312,15 +320,14 @@ public class CategoriesClass{
                     this.commuteCosts[i] = tempCosts[i];
                 }
                 this.commuteCosts[this.NOC_Cost] = this.subCategoryCost;
+                this.NOC_Cost++; //increment the total number of commute subcategories costs.
+
             } else if (this.NOC_Cost >= MAX_NOC) {
-                addError("Error: Maximum Number of Commute Subcategories " + this.MAX_NOC + "Reached !\nClear Commute Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Commute Subcategories " + this.MAX_NOC + " reached !\nClear Commute Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
             }
-            this.NOC++; //increment the total number of commute subcategories.
-            this.NOC_Cost++; //increment the total number of commute subcategories costs.
         }
 
-        else if (this.category.equalsIgnoreCase("Recreation") && !isDuplicateSubcategory && !isFatalError) {
+        else if (this.category.equalsIgnoreCase("Recreation") && !isDuplicateSubcategory) {
             tempNames = this.recreation;  //temp array stores all the current values of recreation names.
             tempCosts = this.recreationCosts;  //temp array stores all the current values of recreation costs.
             /*
@@ -333,9 +340,10 @@ public class CategoriesClass{
                     this.recreation[i] = tempNames[i];
                 }
                 this.recreation[this.NOR] = this.subCategory;
+                this.NOR++; //increment the total number of recreation subcategories.
+
             } else if (this.NOR >= MAX_NOR) {
-                addError("Error: Maximum Number of Recreation Subcategories " + this.MAX_NOR + "Reached !\nClear Recreation Subcategories To Add Again"); //add the error message for exceeding the maximum number of recreation subcategories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Recreation Subcategories " + this.MAX_NOR + " reached !\nClear Recreation Subcategories To Add Again"); //add the error message for exceeding the maximum number of recreation subcategories.
             }
             if (this.NOR_Cost < MAX_NOR) {
                 this.recreationCosts = new double[MAX_NOR];
@@ -344,12 +352,11 @@ public class CategoriesClass{
                     this.recreationCosts[i] = tempCosts[i];
                 }
                 this.recreationCosts[this.NOR_Cost] = this.subCategoryCost;
+                this.NOR_Cost++; //increment the total number of recreation subcategories costs.
+
             } else if (this.NOR_Cost >= MAX_NOR) {
-                addError("Error: Maximum Number of Recreation Subcategories " + this.MAX_NOR + "Reached !\nClear Recreation Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
-                this.isFatalError = true; //fatal error for adding more then or equal to maximum number of subcategories in category.
+                addError("Error: Maximum Number of Recreation Subcategories " + this.MAX_NOR + " reached !\nClear Recreation Subcategories To Add Again"); // add the error message for exceeding the maximum number of food sub-categories.
             }
-            this.NOR++; //increment the total number of recreation subcategories.
-            this.NOR_Cost++; //increment the total number of recreation subcategories costs.
         }
         /*
          * If the subcategory is a duplicate add an error.
@@ -360,44 +367,10 @@ public class CategoriesClass{
     }
 
     /**
-     * method for adding another expense for the subcategory.
-     * @param expenseToAdd
-     * @return
-     */
-    public double addExpense(double expenseToAdd) {
-
-        if (this.category.equalsIgnoreCase("Food")) {
-            this.foodCosts[this.NOF - 1] += expenseToAdd;
-            this.currentExpenses = this.foodCosts[this.NOF - 1];
-        } else if (this.category.equalsIgnoreCase("Housing")) {
-            this.housingCosts[this.NOH - 1] += expenseToAdd;
-            this.currentExpenses = this.housingCosts[this.NOH - 1];
-        } else if (this.category.equalsIgnoreCase("LifeStyle")) {
-            this.lifestyleCosts[this.NOL - 1] += expenseToAdd;
-            this.currentExpenses = this.lifestyleCosts[this.NOL - 1];
-        } else if (this.category.equalsIgnoreCase("Commute")) {
-            this.commuteCosts[this.NOC - 1] += expenseToAdd;
-            this.currentExpenses = this.commuteCosts[this.NOC - 1];
-        } else if (this.category.equalsIgnoreCase("Recreation")) {
-            this.recreationCosts[this.NOR - 1] += expenseToAdd;
-            this.currentExpenses = this.recreationCosts[this.NOR - 1];
-        }
-
-        //format as string object the current expenses to two decimal places.
-        String result = String.format("%.2f", this.currentExpenses);
-
-        //determine the double representation value of the current expenses.
-        this.currentExpenses = Double.valueOf(result);
-
-        return this.currentExpenses;
-    }
-
-
-    /**
-     * overloaded method for adding expenses to a specific subCategory.
-     * @param expenseToAdd
-     * @param subCategoryName
-     * @param categoryName
+     * Method for adding expenses to a specific subcategory.
+     * @param expenseToAdd is the additional expense to be added to the specific subcategory.
+     * @param subCategoryName is an existing subcategory name in which the additional expense is to be added.
+     * @param categoryName is the category associated with the subcategory name.
      * @return
      */
     public double addExpense(double expenseToAdd, String subCategoryName, String categoryName) {
@@ -440,12 +413,12 @@ public class CategoriesClass{
 
 
     /**
-     * @param categoryName
-     * @param subcategory
      * method for removing both the subcategory and removing the expense associated with the subcategory
      * To remove the subcategory the subcategory name and the subcategory expense have to be removed.
      * IMPORTANT NOTE: Expense is to be removed first and after subcategory name is removed.
      * Because if the subcategory name is first removed then the expense associated will not be found.
+     * @param categoryName is name of the category to be removed.
+     * @param subcategory is the name of the subcategory to be added.
      */
     public void removeSubcategory(String categoryName, String subcategory) {
         //reset the error before subcategory is removed.
@@ -454,8 +427,32 @@ public class CategoriesClass{
         removeSubcategoryExpense(categoryName, subcategory); //remove the subcategory expense first.
         removeSubcategoryName(categoryName, subcategory); //remove the subcategory name second.
 
+        //only post data if they are signed in to google in the application. Thus, the users unique id cannot be null.
+        if(this.uniqueId != null) {
+            //thread to run in the background.
+            doGoogleSheetInBackground = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String cost = String.format("%.2f", subCategoryCost);
+
+                    //add the subcategories and cost to the BudgetVision user google sheet if and only if there are no duplicate subcategories or errors detected.
+                    if (!isError && !isDuplicateSubcategory) {
+                        try {
+                            userComponent.getMyMainUser().addSubcategoriesToSheetFromActivity(categoryName, subcategory, String.valueOf( (Double.parseDouble(cost) * -1) ) );
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            doGoogleSheetInBackground.start();
+        }
+
     }
 
+    public void setCurrencySymbol(String currencySymbol){
+        this.currencySymbol = currencySymbol;
+    }
     /**
      * method for getting status.
      * The status will return all the current subcategories for each category.
@@ -465,7 +462,6 @@ public class CategoriesClass{
      */
     public String getStatus() {
         //get the currency symbol from the user object in Main Activity.
-        this.currencySymbol = MainActivity.getInstance().getUser().getCurrencySymbol();
 
         String status = "";
         status = "Food:";
@@ -473,7 +469,7 @@ public class CategoriesClass{
         String[] allFoodCosts = getFoodCosts();
         for (int i = 0; i < this.NOF ; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allFood[i]) +  this.currencySymbol + allFoodCosts[i];
+            status +=  String.format("%-21s" , allFood[i]) +  this.currencySymbol + " " + allFoodCosts[i];
             System.out.println(status);
 
             if (i < this.NOF - 1) {
@@ -487,7 +483,7 @@ public class CategoriesClass{
         String[] allHousingCosts = getHousingCosts();
         for (int i = 0; i < this.NOH; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allHousing[i]) +  this.currencySymbol + allHousingCosts[i];
+            status +=  String.format("%-21s" , allHousing[i]) +  this.currencySymbol + " " + allHousingCosts[i];
 
             if (i < this.NOH - 1) {
                 status += ",";
@@ -500,7 +496,7 @@ public class CategoriesClass{
         String[] allLifestyleCosts = getLifestyleCosts();
         for (int i = 0; i < this.NOL; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allLifestyle[i]) +  this.currencySymbol + allLifestyleCosts[i];
+            status +=  String.format("%-21s" , allLifestyle[i]) +  this.currencySymbol + " " + allLifestyleCosts[i];
 
             if (i < this.NOL - 1) {
                 status += ",";
@@ -513,7 +509,7 @@ public class CategoriesClass{
         String[] allCommuteCosts = getCommuteCosts();
         for (int i = 0; i < this.NOC; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allCommute[i]) +  this.currencySymbol + allCommuteCosts[i];
+            status +=  String.format("%-21s" , allCommute[i]) +  this.currencySymbol + " " + allCommuteCosts[i];
 
             if (i < this.NOC - 1) {
                 status += ",";
@@ -526,7 +522,7 @@ public class CategoriesClass{
         String[] allRecreationCosts = getRecreationCosts();
         for (int i = 0; i < this.NOR; i++) {
             status+="\n";
-            status +=  String.format("%-21s" , allRecreation[i]) + this.currencySymbol + allRecreationCosts[i];
+            status +=  String.format("%-21s" , allRecreation[i]) + this.currencySymbol + " " + allRecreationCosts[i];
 
             if (i < this.NOR - 1) {
                 status += ",";
@@ -560,10 +556,10 @@ public class CategoriesClass{
 
 
     /**
-     * method for returning the number value representation of food subcategory costs.
+     * method for returning the numerical representation of food subcategory costs.
      * @return result
      */
-    public double[] getFoodCostsNumber(){
+    public double[] getFoodCostsNumerical(){
         double[] result = getSubcategoryCostsNumber("Food");
         return result;
     }
@@ -592,10 +588,10 @@ public class CategoriesClass{
 
 
     /**
-     * method for returning the number value representation of housing subcategory costs.
+     * method for returning the numerical representation of housing subcategory costs.
      * @return result
      */
-    public double[] getHousingCostsNumber(){
+    public double[] getHousingCostsNumerical(){
         double[] result = getSubcategoryCostsNumber("Housing");
         return result;
     }
@@ -625,10 +621,10 @@ public class CategoriesClass{
 
 
     /**
-     * method for returning the number value representation of lifestyle subcategory costs.
+     * method for returning the numerical representation of lifestyle subcategory costs.
      * @return result
      */
-    public double[] getLifestyleCostsNumber(){
+    public double[] getLifestyleCostsNumerical(){
         double[] result = getSubcategoryCostsNumber("Lifestyle");
         return result;
     }
@@ -689,10 +685,10 @@ public class CategoriesClass{
 
 
     /**
-     * method for returning the number value representation of recreation subcategory costs.
+     * method for returning the numerical representation of recreation subcategory costs.
      * @return result
      */
-    public double[] getRecreationCostsNumber(){
+    public double[] getRecreationCostsNumerical(){
         double[] result = getSubcategoryCostsNumber("Recreation");
         return result;
     }
@@ -703,14 +699,6 @@ public class CategoriesClass{
 
     }
 
-
-    /**
-     *
-     *
-    Helper methods.
-     *
-     *
-     */
 
     /**
      * helper method for finding the index of a subcategory.
@@ -1030,7 +1018,7 @@ public class CategoriesClass{
                     count++;
                 }
             }
-            this.NOC--; //decrement this.NOC counter by 1 since a Commute subcategory was removed.
+            this.NOC--; //decrement this.NOC counter by 1 since a commute subcategory was removed.
             this.commute = temp; //now the Commute array is the temp array.
         } else if (categoryName.equalsIgnoreCase("recreation") && index != -1) {
             temp = new String[this.NOR - 1]; //new result array with minus 1 length of number of subcategory .
@@ -1073,6 +1061,9 @@ public class CategoriesClass{
                     temp[count] = allCosts[i];
                     count++;
                 }
+                else{
+                    this.subCategoryCost = allCosts[count];
+                }
             }
             this.foodCosts = temp;
             this.NOF_Cost--;
@@ -1084,6 +1075,9 @@ public class CategoriesClass{
                 if (i != index) {
                     temp[count] = allCosts[i];
                     count++;
+                }
+                else{
+                    this.subCategoryCost = allCosts[count];
                 }
             }
             this.lifestyleCosts = temp;
@@ -1098,6 +1092,9 @@ public class CategoriesClass{
                     temp[count] = allCosts[i];
                     count++;
                 }
+                else{
+                    this.subCategoryCost = allCosts[count];
+                }
             }
             this.recreationCosts = temp;
             this.NOR_Cost--;
@@ -1111,6 +1108,9 @@ public class CategoriesClass{
                     temp[count] = allCosts[i];
                     count++;
                 }
+                else{
+                    this.subCategoryCost = allCosts[count];
+                }
             }
             this.commuteCosts = temp;
             this.NOC_Cost--;
@@ -1123,6 +1123,9 @@ public class CategoriesClass{
                 if (i != index) {
                     temp[count] = allCosts[i];
                     count++;
+                }
+                else{
+                    this.subCategoryCost = allCosts[count];
                 }
             }
             this.housingCosts = temp;
@@ -1190,26 +1193,6 @@ public class CategoriesClass{
     public void resetError() {
         this.isError = false; // no error.
         this.errorMSG = "";  // no error message.
-
-    }
-
-
-    /**
-     * helper method used in Class UsersBudget. Return the current subcategory name.
-     * @return this.subCategory
-     */
-    public String getCurrentSubcategoryName(){
-        return this.subCategory;
-
-    }
-
-
-    /**
-     * /helper method used in Class UsersBudget. Return the current subcategory cost as Double data type.
-     * @return this.subCategoryCost
-     */
-    public double getCurrentSubcategoryCostsNumber(){
-        return this.subCategoryCost;
 
     }
 
@@ -1313,7 +1296,6 @@ public class CategoriesClass{
     public int getNOR(){
         return this.NOR;
     }
-
 
     /**
      * Helper method used in Class UsersBudget to get maximum number of food subcategories.

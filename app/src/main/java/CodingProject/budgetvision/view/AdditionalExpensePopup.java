@@ -1,6 +1,7 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.view;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -13,14 +14,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import CodingProject.budgetvision.R;
-import CodingProject.budgetvision.controller.MainActivity;
+import CodingProject.budgetvision.controller.UserBudgetComponent;
+import CodingProject.budgetvision.controller.UsersBudgetClass;
 
 public class AdditionalExpensePopup extends Activity {
 
-    UsersBudgetClass user = MainActivity.getInstance().getUser();
+    UsersBudgetClass user;
 
     private String categorySelected;
     private String subcategoryChosen;
+    private String userName;
 
     /**
      * The OnCreate method of this AdditionalExpensePopup activity.
@@ -39,6 +42,22 @@ public class AdditionalExpensePopup extends Activity {
 
         //the window will be 80% of the screen width and height.
         getWindow().setLayout((int) (width *.8),(int) (height*.8));
+
+        //get the user name from the intent.
+        Intent i = getIntent();
+        userName = i.getStringExtra("userName_extra");
+
+        //main user object
+        UserBudgetComponent userComponent = ((UsersBudgetClass)getApplication()).getAppComponent();
+        this.user = userComponent.getMyMainUser();
+
+        /*
+         * if the user object is not the main user object, then retrieve the other user object.
+         * Before the userName is checked to see if it does not equal "#Default" it is first checked if the userName is not null.
+         */
+        if(this.userName != null && ! this.userName.equalsIgnoreCase("#Default")){
+            this.user = this.user.getUserObjectOfName(this.userName);
+        }
 
         Spinner categoriesSpinner = (Spinner) findViewById(R.id.categoryOptions2);
 
@@ -127,7 +146,7 @@ public class AdditionalExpensePopup extends Activity {
      * this method is called OnClick() when the add expense button is clicked.
      * @param view
      */
-    public void addExpense(View view){
+    public void addExpense(View view)  {
         //get which subcategory is chosen from the user.
         AutoCompleteTextView subcategoryChoice = (AutoCompleteTextView) findViewById(R.id.autoSuggestions);
         this.subcategoryChosen = subcategoryChoice.getText().toString();
@@ -136,21 +155,25 @@ public class AdditionalExpensePopup extends Activity {
         EditText expenseChoice = (EditText) findViewById(R.id.expToIncrTxt);
         String expense = expenseChoice.getText().toString();
 
-        String confirmation = this.user.userImmediateStatus();
-        immediateStatus();
-        if(!(confirmation.equalsIgnoreCase("Error: Subcategory " + this.subcategoryChosen + " Does Not Exist For Category " + this.categorySelected))) {
-            //close the activity now that the expense has been added. To prevent user from spamming expenses for the same subcategory simultaneously.
-            closeActivity();
+        //add the user expense.
+        try {
+            if( !this.subcategoryChosen.trim().equalsIgnoreCase("") && !expense.trim().equalsIgnoreCase( "")){
+                user.addUserAdditionalExpense(this.categorySelected, this.subcategoryChosen, Double.parseDouble(expense));
+                immediateStatus();
 
-            //add the user expense.
-            user.addUserAdditionalExpense(this.categorySelected, this.subcategoryChosen, Double.parseDouble(expense));
-
-            //update the total income now.
-            updateTotalIncome();
-
-            //update the daily budget now.
-            updateDailyBudget();
-
+            }
+            else if (this.subcategoryChosen.trim().equalsIgnoreCase("") || expense.trim().equalsIgnoreCase("")){
+                String confirmation = "Error: No inputs For Either Subcategory Or Additional Expense Amount.";
+                Toast.makeText(this,confirmation,Toast.LENGTH_SHORT).show();
+            }
+        }
+        catch(NumberFormatException e){
+            /*
+             * the user entered multiple points instead of one optional decimal point.
+             * set the multiple points error text.
+             */
+            String confirmation = "Error: Multiple decimal points. Invalid Additional Expense Amount.";
+            Toast.makeText(this,confirmation,Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -161,7 +184,7 @@ public class AdditionalExpensePopup extends Activity {
      */
     public void updateTotalIncome(){
         //call the update total income method in Main activity.
-        MainActivity.getInstance().updateTotalIncome();
+        this.user.updateTotalIncomeFromActivity();
     }
 
 
@@ -170,7 +193,7 @@ public class AdditionalExpensePopup extends Activity {
      */
     public void updateDailyBudget(){
         //call the update daily budget method in Main activity.
-        MainActivity.getInstance().updateDailyBudget();
+        this.user.updateDailyBudgetFromActivity();
     }
 
 
@@ -187,12 +210,6 @@ public class AdditionalExpensePopup extends Activity {
         updateDailyBudget();
 
     }
-
-    //controller method for closing the activity.
-    public void closeActivity(){
-        this.finish();
-    }
-
 
     //controller method for closing the activity manually via onclick on the popup image button.
     public void closeActivityAddExpManually(View view){

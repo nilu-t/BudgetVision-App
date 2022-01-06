@@ -1,16 +1,14 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.view;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +26,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -38,7 +35,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -60,13 +56,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import CodingProject.budgetvision.R;
-import CodingProject.budgetvision.controller.MainActivity;
+import CodingProject.budgetvision.controller.CategoriesClass;
+import CodingProject.budgetvision.controller.UserBudgetComponent;
+import CodingProject.budgetvision.controller.UsersBudgetClass;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -85,8 +80,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
     Spreadsheet userSpreadsheet;
 
-    boolean stateOfSaveSwitch = false;
-
     View myInflatedView; //the inflated view which stores all the contents from this Settings Fragment.
 
     private String userUniqueId; //the unique id of the user. If the unique id is null then they have not signed into google via BudgetVision application.
@@ -97,21 +90,15 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     private int tempRowCounter = 1; //stores the row number used to update subcategories and costs in the google sheet.
     private static final String APPLICATION_NAME = "BudgetVision Transactions";
 
-    //currency conversion object from CurrencyConversionClass.java file.
-    CurrencyConversionClass currencyConversionObj = new CurrencyConversionClass();
+    private Spinner currencySpinner;
+    private Switch saveCurrencySwitch;
+    private boolean isOn;
 
-    CategoriesClass categoriesObject;
-    Spinner currencySpinner;
-    Switch saveCurrencySwitch;
 
-    int currencyCounter;
-    int defaultCurrencyPosition;
+    private ArrayAdapter<String> allCountriesAdapter;
 
-    String dailyBudgetConverted;
-    String totalIncomeConverted;
-    String currentMonthlyExpensesConverted;
-
-    ArrayAdapter<String> allCountriesAdapter;
+    final String userName = "#Default"; //the username is #default for all of settings fragment. All functionality is for the main user in SettingsFragment.java.
+    private UsersBudgetClass user;
 
     /**
      * OnCreate method executes when the fragment is first created.
@@ -123,7 +110,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        categoriesObject = MainActivity.getInstance().getUser().categoriesObject();
 
         //inflate the contents inside the fragment.
         this.myInflatedView = inflater.inflate(R.layout.fragment_settings,container,false);
@@ -131,22 +117,21 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         SignInButton signInButton = (SignInButton) this.myInflatedView.findViewById(R.id.sign_in_button);
         signInButton.setVisibility(View.VISIBLE);
         signInButton.setEnabled(true);
+        signInButton.setOnClickListener(this);
+
+        UserBudgetComponent userComponent = ((UsersBudgetClass)getActivity().getApplication()).getAppComponent();
+        this.user = userComponent.getMyMainUser();
 
         //setting the array adapter containing all ISO 3166 countries in the array adapter.
-        String [] allCountries = currencyConversionObj.getAllCountries();
+        String [] allCountries = this.user.getAllCountries();
 
         Spinner allCountriesSpinner = (Spinner)(this.myInflatedView.findViewById(R.id.currencySpinner));
         allCountriesAdapter = new ArrayAdapter<String>(this.getActivity(),android.R.layout.simple_spinner_dropdown_item,allCountries);
 
-        allCountriesAdapter.remove((String)allCountriesSpinner.getSelectedItem());
-
-        //default spinner item is Canada since the default currency is CAD.
         allCountriesSpinner.setAdapter(allCountriesAdapter);
 
-        //defaultCurrencyPosition = allCountriesAdapter.getPosition("(Canada)");
-        //allCountriesSpinner.setSelection(defaultCurrencyPosition);
-
-        signInButton.setOnClickListener(this);
+        Button clearAllButton = myInflatedView.findViewById(R.id.clearAllButton);
+        clearAllButton.setOnClickListener(this);
 
         /*
          * The input stream of where the client_secrets.json file is stored.
@@ -178,83 +163,68 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 .requestEmail()
                 .build();
 
-        //view onclick listener for the clear all button.
-        ( (Button) this.myInflatedView.findViewById(R.id.clearAllButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearAll();
-            }
-        });
-
         Switch saveBkgAnimationSwitch = ((Switch)(this.myInflatedView.findViewById(R.id.saveSwitchBkg)));
 
         saveBkgAnimationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    MainActivity.getInstance().addBackgroundAnimation(true);
+                    user.addAnimationFromActivity(true);
                 }
                 else{
-                    MainActivity.getInstance().addBackgroundAnimation(false);
+                    user.addAnimationFromActivity(false);
                 }
             }
         });
+
 
         currencySpinner = ((Spinner)(this.myInflatedView.findViewById(R.id.currencySpinner)));
 
         saveCurrencySwitch = ((Switch)(this.myInflatedView.findViewById(R.id.saveSwitch)));
 
-        //only execute the save switch to change currencies when the country is unique.
+
+        SharedPreferences prefs = this.getActivity().getSharedPreferences("set_fragment_save_file", Context.MODE_PRIVATE); //get the shared preferences associated with the file name from 'prefsName
+        boolean stateOfSwitchOn = prefs.getBoolean("switchState", false);
+
+        if(stateOfSwitchOn){
+            //if the save switch state is on then turn on the switch.
+            saveCurrencySwitch.setChecked(true);
+        }
+
         //listener for the save switch.
         saveCurrencySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                if(isChecked && currencyCounter % 2 == 0) {
-                    currencyChanged(); //change the currency to the currency selected.
-                    currencyCounter++;
+                String countrySelectedDisplayName = ((Spinner) myInflatedView.findViewById(R.id.currencySpinner)).getSelectedItem().toString();
+
+                if (isChecked) {
+                    isOn = true;
+                    user.currencyChanged(countrySelectedDisplayName); //change the currency to the currency selected.
 
                     //prevent clicking of the switch again to avoid spamming/abuse.
                     disableSaveCurrencySwitch();
 
+
                 }
-                if(isChecked){
-                    //prevent clicking of the spinner since the only option is to go back to CAD.
-                    currencySpinner.setEnabled(false);
-                    currencySpinner.setClickable(false);
-                }
-                if(! isChecked) {
+                else if (!isChecked) {
+                    isOn = false;
+
                     //allow clicking of the spinner there is option to choose new currency.
                     currencySpinner.setEnabled(true);
                     currencySpinner.setClickable(true);
 
-                    resetSpinnerToCanadaPosition(); //reset the spinner default position to Canada.
-
-                    currencyChanged(); //change the currency back to CAD.
-
-                    /*setting the array adapter containing all ISO 3166 countries in the array adapter.
-                     *This is to include Canada which was removed initially since default currency is CAD.
-                     */
-
-                    String [] allCountries = currencyConversionObj.getAllCountries();
-                    List<String> allCountriesList = new ArrayList<String>(Arrays.asList(allCountries));
-
-                    //prevent clicking of the switch again to avoid spamming.
-                    disableSaveCurrencySwitch();
-
-                    //remove option for Canada once again since the default currency is CAD again.
-                    allCountriesList.remove("Canada");
-                    allCountries = allCountriesList.toArray(new String[0]);
-
-                    allCountriesAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,allCountries);
-                    currencySpinner.setAdapter(allCountriesAdapter);
-
-                    currencyCounter++;
-
+                    user.currencyChanged("Canada"); //change the currency back to CAD.
 
                 }
 
+                //save the state of the switch whether it is on or off.
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences("set_fragment_save_file",  Context.MODE_PRIVATE).edit();
+                editor.putBoolean("switchState", isOn);
+                editor.commit();
+
             }
         });
+
 
 
         // Build a GoogleSignInClient with the options specified by gso.
@@ -264,6 +234,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         return myInflatedView;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+    }
 
     /**
      * When the google sign in button is clicked call the signIn() method.
@@ -278,6 +253,9 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 break;
             case R.id.downloadSheetBtn:
                 downloadGoogleSheet();
+                break;
+            case R.id.clearAllButton:
+                clearAll();
                 break;
         }
     }
@@ -308,7 +286,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         someActivityResultLauncher.launch(signInIntent);
     }
-
 
     /**
      * Method for handling the users google sign-in for the end user.
@@ -375,7 +352,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                         .add("client_secret", clientSecret)
                         .add("redirect_uri", "")
                         .add("code", authCode)
-                        .add("access_type","offline")
                         .build();
 
                 //create the okhttp3 request for the URI for an Oauth2 v4 token.
@@ -405,7 +381,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                             /*
                              * Retrieve the initial access token from the jsonObject.
                              */
-                            accessToken = jsonObject.get("access_token").toString();
+                            accessToken = jsonObject.getString("access_token");
                             System.out.println("Printed By Me Access token is " + accessToken);
 
                             /*
@@ -413,8 +389,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                              * The refresh token does not expire whereas the access token has a span of 3600 seconds which is 1 hour.
                              * Once the access token expires the refresh token will be used to authenticate the budgetvision user to the google spreadsheet.
                              */
-                            refreshToken = jsonObject.get("refresh_token").toString();
-                            System.out.println("Printed By Me Refresh token is " + refreshToken);
+                           refreshToken = jsonObject.getString("refresh_token");
+                           System.out.println("Printed By Me Refresh token is " + refreshToken);
 
                             //  Google credential is now depreciated. This was how credential was accessed before depreciation.
                             //  GoogleCredential credential = new GoogleCredential.Builder()
@@ -426,8 +402,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                             //  credential.setRefreshToken(refreshToken); //set the refresh token to the credential.
 
                             //OAuth2 Credentials representing a user's identity and consent
-                            credentials =
-                                    UserCredentials.newBuilder()
+                            credentials = UserCredentials.newBuilder()
                                             .setClientId(clientId)
                                             .setClientSecret(clientSecret)
                                             .setRefreshToken(refreshToken)
@@ -465,6 +440,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                              * Call method to initialize the spreadsheet with all the categories and cost headings.
                              */
                             initialiseTheSheet();
+
+                            /*
+                             * Add all of the current subcategories within the app to the google sheet.
+                             */
+                            addAllCurrentSubcategoriesToSheet();
 
                             /*
                              * Store the url of the BudgetVision user sheet.
@@ -513,13 +493,13 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                     String personFamilyName = account.getFamilyName();
 
                     //greet the user in the main activity -> activity main layout.
-                    MainActivity.getInstance().welcomeBackGreeting(personGivenName,personFamilyName);
+                    this.user.welcomeBackGreetingFromActivity(personGivenName,personFamilyName);
 
                     //user unique id.
                     this.userUniqueId = account.getId();
 
                     //set the unique id in the Categories class.
-                    CategoriesClass categoriesObject = MainActivity.getInstance().getUser().categoriesObject();
+                    CategoriesClass categoriesObject = this.user.categoriesObject();
                     categoriesObject.setUserUniqueId(this.userUniqueId);
 
                     //set the enabled option of the sign in button to false since the user has been signed in.
@@ -529,9 +509,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
 
             } catch (ApiException e) {
-                // The ApiException status code indicates the detailed failure reason.
-                // Please refer to the GoogleSignInStatusCodes class reference for more information.
-
                 e.printStackTrace();
             }
         }
@@ -562,14 +539,80 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     }
 
     /**
-     * This method is used by the Categories Class.
+     * This method will add all the current subcategories added within the app already to the google sheet.
+     */
+    public void addAllCurrentSubcategoriesToSheet(){
+        int NOF = this.user.categoriesObject().getNOF();
+        String [] allFoodCosts = this.user.categoriesObject().getFoodCosts();
+        String [] allFoodSubcategories = this.user.categoriesObject().getFood();
+
+        int NOH = this.user.categoriesObject().getNOH();
+        String [] allHousingCosts =  this.user.categoriesObject().getHousingCosts();
+        String [] allHousingSubcategories = this.user.categoriesObject().getHousing();
+
+        int NOC = this.user.categoriesObject().getNOC();
+        String [] allCommuteCosts = this.user.categoriesObject().getCommuteCosts();
+        String [] allCommuteSubcategories = this.user.categoriesObject().getCommute();
+
+        int NOR = this.user.categoriesObject().getNOR();
+        String [] allRecreationCosts = this.user.categoriesObject().getRecreationCosts();
+        String [] allRecreationSubcategories = this.user.categoriesObject().getRecreation();
+
+        int NOL = this.user.categoriesObject().getNOL();
+        String [] allLifestyleCosts = this.user.categoriesObject().getLifestyleCosts();
+        String [] allLifestyleSubcategories = this.user.categoriesObject().getLifestyle();
+
+        //add all current food subcategories to sheet.
+        for(int i = 0; i < NOF; i ++){
+            try {
+                addNewSubcategoriesToSheet("food",allFoodSubcategories[i],allFoodCosts[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //add all current housing subcategories to sheet.
+        for(int i = 0; i < NOH; i ++){
+            try {
+                addNewSubcategoriesToSheet("housing",allHousingSubcategories[i],allHousingCosts[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //add all current commute subcategories to sheet.
+        for(int i = 0; i < NOC; i ++){
+            try {
+                addNewSubcategoriesToSheet("commute",allCommuteSubcategories[i],allCommuteCosts[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //add all current lifestyle subcategories to sheet.
+        for(int i = 0; i < NOL; i ++){
+            try {
+                addNewSubcategoriesToSheet("lifestyle",allLifestyleSubcategories[i],allLifestyleCosts[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //add all current recreation subcategories to sheet.
+        for(int i = 0; i < NOR; i ++){
+            try {
+                addNewSubcategoriesToSheet("recreation",allRecreationSubcategories[i],allRecreationCosts[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * This method is used by the Categories Class and SettingsFragment.java
      * This helper method adds the subcategories to the budgetvision users google sheet in their google account.
      * @param categoryName
      * @param subcategoryName
      * @param cost
      * @throws IOException
      */
-    public void addSubcategoriesToSheet(String categoryName, String subcategoryName, String cost) throws IOException {
+    public void addNewSubcategoriesToSheet(String categoryName, String subcategoryName, String cost) throws IOException {
         //increment the temporary row counter.
         this.tempRowCounter += 1;
 
@@ -577,9 +620,9 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         ValueRange subcategoryBody = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(subcategoryName)));
 
-        //category value names used in the spreadsheet as headers for each budget category.
+        //subcategory costs used in the spreadsheet for each subcategory body.
         ValueRange costBody = new ValueRange()
-                .setValues((Arrays.asList(Arrays.asList(cost))));
+                .setValues((Arrays.asList(Arrays.asList( this.user.getCurrencySymbol() + " " + cost))));
 
         /*
          * Add the categories to the user sheet.
@@ -629,7 +672,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
     /**
      * This method is used for downloading the users BudgetVision google sheet.
-     * This method is called by the MainActivity Class.
      */
     public void downloadGoogleSheet(){
         /*
@@ -650,7 +692,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
             downloadManager.enqueue(request);
 
             //make the toast to tell the user downloading started.
-            Toast.makeText(getActivity(), "Downloading started", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "Downloading started. Please wait.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -658,212 +700,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
      * This method is executed via OnClick.
      */
     public void clearAll(){
-        MainActivity.getInstance().clearAllWarningMessage();
-    }
-
-    /**
-     * Helper Method executed from the "save" switch in the Settings Fragment. The currency has been changed.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void currencyChanged() {
-        String countryDisplayName = "English " + ((Spinner) this.myInflatedView.findViewById(R.id.currencySpinner)).getSelectedItem().toString();
-
-        //get all the subcategories for each cateogry and the number of subcategories.
-        double[] allFoodCosts = this.categoriesObject.getFoodCostsNumber();
-        int NOF = this.categoriesObject.getNOF();
-        double[] allHousingCosts = this.categoriesObject.getHousingCostsNumber();
-        int NOH = this.categoriesObject.getNOH();
-        double[] allCommuteCosts = this.categoriesObject.getCommuteCostsNumber();
-        int NOC = this.categoriesObject.getNOC();
-        double[] allRecreationCosts = this.categoriesObject.getRecreationCostsNumber();
-        int NOR = this.categoriesObject.getNOR();
-        double[] allLifestyleCosts = this.categoriesObject.getLifestyleCostsNumber();
-        int NOL = this.categoriesObject.getNOL();
-
-        String currentDailyBudget = MainActivity.getInstance().getDailyBudget();
-        String currentTotalIncome = MainActivity.getInstance().getTotalIncome();
-
-        double monthlyExpenses = Double.parseDouble(String.valueOf(MainActivity.getInstance().getUser().getTotalMonthlyExpenses()));
-
-        if( ! countryDisplayName.equalsIgnoreCase("English (Canada)")) {
-            //convert the monthly expenses.
-            currentMonthlyExpensesConverted = monthlyBudgetFutureProcess(countryDisplayName, String.valueOf(monthlyExpenses));
-
-            //convert the daily budget.
-            dailyBudgetConverted = dailyBudgetFutureProcess(countryDisplayName, currentDailyBudget);
-
-            //convert the total income.
-            totalIncomeConverted = totalIncomeFutureProcess(countryDisplayName, currentTotalIncome);
-        }
-        else if (countryDisplayName.equalsIgnoreCase("English (Canada)")){
-            try {
-                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, String.valueOf(monthlyExpenses));
-                currentMonthlyExpensesConverted = currencyConversionObj.toString();
-                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentDailyBudget);
-                dailyBudgetConverted = currencyConversionObj.toString();
-                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentTotalIncome);
-                totalIncomeConverted = currencyConversionObj.toString();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if( ! (dailyBudgetConverted.equalsIgnoreCase("currency not supported") || totalIncomeConverted.equalsIgnoreCase("currency not supported") || currentMonthlyExpensesConverted.equalsIgnoreCase("currency not supported")) ) {
-            //background thread to convert all the costs and then using handler to update the UI.
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                     /*
-                         * iterate through all the subcategories and format them according to their currency.
-                         * Handlers are used to update the arrays after the call to the method setCurrencySymbolAndFormat which does HTML parsing from yahoo finance asynchronously.
-                         */
-                        double[] latestFoodCosts = delayAndApplyCurrencyChange(NOF, allFoodCosts);
-                        double[] latestHousingCosts = delayAndApplyCurrencyChange(NOH, allHousingCosts);
-                        double[] latestLifestyleCosts = delayAndApplyCurrencyChange(NOL, allLifestyleCosts);
-                        double[] latestCommuteCosts = delayAndApplyCurrencyChange(NOC, allCommuteCosts);
-                        double[] latestRecreationCosts = delayAndApplyCurrencyChange(NOR, allRecreationCosts);
-
-                        //set the categories that are all formatted by the user-selected currency.
-                        categoriesObject.setSubcategoryCosts(latestFoodCosts, "food");
-                        categoriesObject.setSubcategoryCosts(latestHousingCosts, "housing");
-                        categoriesObject.setSubcategoryCosts(latestCommuteCosts, "commute");
-                        categoriesObject.setSubcategoryCosts(latestRecreationCosts, "recreation");
-                        categoriesObject.setSubcategoryCosts(latestLifestyleCosts, "lifestyle");
-
-                        //the current currency symbol for the currency chosen.
-                        String currencySymbol = currencyConversionObj.getCurrencySymbol();
-
-                        System.out.println(dailyBudgetConverted + " is dailyBudgetConverted");
-                        System.out.println(totalIncomeConverted + " is totalIncomeConverted");
-                        System.out.println(currentMonthlyExpensesConverted + " is currentMonthlyExpensesConverted");
-
-                        //set the converted monthly expenses.
-                        MainActivity.getInstance().getUser().setTotalMonthlyExpenses(Double.parseDouble(currentMonthlyExpensesConverted));
-
-                        Handler handler1 = new Handler(Looper.getMainLooper());
-                        handler1.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                //set the currency symbol in the UsersBudget.java class.
-                                MainActivity.getInstance().getUser().setCurrencySymbol(currencySymbol);
-
-                                //formatting the currency value to 2 decimal places.
-                                String formattedCurrencyValue = " " + dailyBudgetConverted;
-
-                                // make update on the UI for daily budget.
-                                MainActivity.getInstance().updateDailyBudget();
-                            }
-                        }, 500);
-
-                        Handler handler2 = new Handler(Looper.getMainLooper());
-                        handler2.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                //set the currency symbol in the UsersBudget.java class.
-                                MainActivity.getInstance().getUser().setCurrencySymbol(currencySymbol);
-
-                                //formatting the currency value to 2 decimal places.
-                                String formattedCurrencyValue = " " + totalIncomeConverted;
-
-                                // make update on the UI for daily budget.
-                                MainActivity.getInstance().updateTotalIncome();
-                            }
-                        }, 500);
-
-                }
-            });
-
-        thread.start();
-
-        } //end of if-statement.
-        /*
-         * otherwise the currency is not supported. A toast is made to tell the user that the currency is currently not supported.
-         * Also, currency switch will then be on the switched off position.
-         */
-        else {
-            Toast.makeText(getActivity(), "This country currency is currently not supported.", Toast.LENGTH_LONG).show();
-            saveCurrencySwitch.setOnCheckedChangeListener(null);
-            saveCurrencySwitch.setChecked(false);
-            saveCurrencySwitch.setOnCheckedChangeListener(null);
-
-            //prevent clicking of the currency switch again.
-            saveCurrencySwitch.setEnabled(false);
-            saveCurrencySwitch.setClickable(false);
-
-        }
-
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public String monthlyBudgetFutureProcess(String countryDisplayName, String currentMonthlyExp){
-
-        CompletableFuture<Void> currentMonthlyExpFuture = CompletableFuture.runAsync(() -> {
-            try {
-                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentMonthlyExp);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-
-        currentMonthlyExpFuture.join();
-
-        // Block and get the result of the Future
-        currentMonthlyExpensesConverted = currencyConversionObj.toString();
-
-        return currentMonthlyExpensesConverted;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public String dailyBudgetFutureProcess(String countryDisplayName, String currentDailyBudget){
-
-        CompletableFuture<Void> currentDailyBudgetFuture = CompletableFuture.runAsync(() -> {
-            try {
-                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentDailyBudget);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-
-        currentDailyBudgetFuture.join();
-
-        // Block and get the result of the Future
-        dailyBudgetConverted = currencyConversionObj.toString();
-
-        return dailyBudgetConverted;
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public String totalIncomeFutureProcess(String countryDisplayName, String currentTotalIncome) {
-
-        CompletableFuture<Void> currentTotalIncomeFuture = CompletableFuture.runAsync(() -> {
-            try {
-                currencyConversionObj.setCurrencySymbolAndFormat(countryDisplayName, currentTotalIncome);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        currentTotalIncomeFuture.join();
-
-        // Block and get the result of the Future
-        totalIncomeConverted = currencyConversionObj.toString();
-        return totalIncomeConverted;
-    }
-
-    /**
-     * Helper method for currencyChanged() in SettingsFragment.java file.
-     * @return
-     */
-    public double[] delayAndApplyCurrencyChange(int numberOfSubcategories, double[] categoryCostArr){
-
-        for(int i = 0; i < numberOfSubcategories; i++){
-            double conversionRate = currencyConversionObj.getConversionRate();
-            categoryCostArr[i] = categoryCostArr[i] * conversionRate;
-        }
-
-        return categoryCostArr;
+        this.user.clearAllWarningMessageFromActivity();
     }
 
     /**
@@ -874,16 +711,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         saveCurrencySwitch.setClickable(false);
     }
 
-    public void resetSpinnerToCanadaPosition(){
-        String [] allCountries = currencyConversionObj.getAllCountries();
-        List<String> allCountriesList = new ArrayList<String>(Arrays.asList(allCountries));
-
-        allCountriesAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,allCountries);
-
-        //set the selection of the currency spinner to CAD.
-        defaultCurrencyPosition = allCountriesAdapter.getPosition("(Canada)");
-        currencySpinner.setSelection(defaultCurrencyPosition);
+    public void enableSaveCurrencySwitch(){
+        saveCurrencySwitch.setEnabled(true);
+        saveCurrencySwitch.setClickable(true);
     }
+
 
 
 }

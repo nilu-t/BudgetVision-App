@@ -1,4 +1,4 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.view;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -8,16 +8,19 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import CodingProject.budgetvision.R;
-import CodingProject.budgetvision.controller.MainActivity;
+import CodingProject.budgetvision.controller.UserBudgetComponent;
+import CodingProject.budgetvision.controller.UsersBudgetClass;
 
-public class AddIncomePopup extends Activity implements View.OnClickListener{
+public class AddOrRemoveIncomePopup extends Activity implements View.OnClickListener{
 
     private double userInitialIncome;
+    private UserBudgetComponent userComponent;
+    private UsersBudgetClass user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.popupwindow_add_income);
+        setContentView(R.layout.popupwindow_add_remove_income);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -35,6 +38,9 @@ public class AddIncomePopup extends Activity implements View.OnClickListener{
         //create an onclick listener for the remove income button.
         Button removeIncomeButton = ((Button) findViewById(R.id.removeIncomeBtn));
         removeIncomeButton.setOnClickListener(this);
+
+        this.userComponent = ((UsersBudgetClass)getApplication()).getAppComponent();
+        this.user = this.userComponent.getMyMainUser();
 
     }
 
@@ -62,15 +68,15 @@ public class AddIncomePopup extends Activity implements View.OnClickListener{
     }
 
     public void setInitialIncreaseIncome(){
-        MainActivity.getInstance().getUser().increaseUserInitialIncome(userInitialIncome);
+        ((UsersBudgetClass)getApplication()).getAppComponent().getMyMainUser().increaseUserInitialIncome(userInitialIncome);
     }
 
     public void setInitialDecreaseIncome(){
-        MainActivity.getInstance().getUser().decreaseUserInitialIncome(userInitialIncome);
+        ((UsersBudgetClass)getApplication()).getAppComponent().getMyMainUser().decreaseUserInitialIncome(userInitialIncome);
     }
 
     public void updateTotalIncome(){
-        MainActivity.getInstance().updateTotalIncome();
+        this.user.updateTotalIncomeFromActivity();
     }
 
     //method for closing the activity from OnClick.

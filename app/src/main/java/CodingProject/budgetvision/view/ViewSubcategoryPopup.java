@@ -1,6 +1,7 @@
-package CodingProject.budgetvision.model;
+package CodingProject.budgetvision.view;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -10,17 +11,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import CodingProject.budgetvision.R;
-import CodingProject.budgetvision.controller.MainActivity;
+import CodingProject.budgetvision.controller.UserBudgetComponent;
+import CodingProject.budgetvision.controller.UsersBudgetClass;
 
 public class ViewSubcategoryPopup extends Activity {
-    UsersBudgetClass user = MainActivity.getInstance().getUser();
-    String category = user.categoriesObject().getCategory();
+    private UsersBudgetClass mainUser; //main user object.
+    private UsersBudgetClass user; //user object for a specific added user from the money fragment.
 
-
-    //empty constructor for view Subcategory Popup.
-    public ViewSubcategoryPopup(){
-
-    }
+    private String category; //stores the category name.
+    private String userName; //stores the user name of the added user.
 
     /**
      * The OnCreate method used in the ViewSubcategoryPopup class.
@@ -31,6 +30,22 @@ public class ViewSubcategoryPopup extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popupwindow_subcategory);
 
+        Intent i = getIntent();
+        category = i.getStringExtra("categoryName_extra");
+        userName = i.getStringExtra("userName_extra");
+
+        //main user object.
+        UserBudgetComponent userComponent = ((UsersBudgetClass) getApplication()).getAppComponent();
+        this.mainUser = userComponent.getMyMainUser();
+
+        //checking to see if the userName is not null and does not equal #Default, then the userObject associated with the userName is retrieved.
+        if(userName != null && ! userName.equalsIgnoreCase("#Default")) {
+            this.user = this.mainUser.getUserObjectOfName(userName);
+        }
+        else{
+            this.user = this.mainUser; //the current user object is the main user since there is no new user added or retrieved.
+        }
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
@@ -40,9 +55,8 @@ public class ViewSubcategoryPopup extends Activity {
         //the window will be 80% of the screen width and height.
         getWindow().setLayout((int) (width *.8),(int) (height*.8));
 
-
         if(this.category.equalsIgnoreCase("Food")) {
-            setContentsOfTextView(R.id.categoryText,"Food");
+            setContentsOfTextView(R.id.categoryAddLabel,"Food");
 
             this.user.addUserCategory(this.category); //add the user food category.
 
@@ -53,7 +67,7 @@ public class ViewSubcategoryPopup extends Activity {
             editAutoSubcategory.setAdapter(autoSubcategoryAdapter);
         }
         else if(this.category.equalsIgnoreCase("Housing")) {
-            setContentsOfTextView(R.id.categoryText,"Housing");
+            setContentsOfTextView(R.id.categoryAddLabel,"Housing");
 
             this.user.addUserCategory(this.category); //add the user housing category.
 
@@ -64,7 +78,7 @@ public class ViewSubcategoryPopup extends Activity {
             editAutoSubcategory.setAdapter(autoSubcategoryAdapter);
         }
         else if(this.category.equalsIgnoreCase("Commute")) {
-            setContentsOfTextView(R.id.categoryText,"Commute");
+            setContentsOfTextView(R.id.categoryAddLabel,"Commute");
 
             this.user.addUserCategory(this.category); //add the user commute category.
 
@@ -75,7 +89,7 @@ public class ViewSubcategoryPopup extends Activity {
             editAutoSubcategory.setAdapter(autoSubcategoryAdapter);
         }
         else if(this.category.equalsIgnoreCase("Recreation")) {
-            setContentsOfTextView(R.id.categoryText,"Recreation");
+            setContentsOfTextView(R.id.categoryAddLabel,"Recreation");
 
             this.user.addUserCategory(this.category); //add the user recreation category.
 
@@ -86,7 +100,7 @@ public class ViewSubcategoryPopup extends Activity {
             editAutoSubcategory.setAdapter(autoSubcategoryAdapter);
         }
         else if(this.category.equalsIgnoreCase("Lifestyle")) {
-            setContentsOfTextView(R.id.categoryText,"Lifestyle");
+            setContentsOfTextView(R.id.categoryAddLabel,"Lifestyle");
 
             this.user.addUserCategory(this.category); //add the user lifestyle category.
 
@@ -107,8 +121,8 @@ public class ViewSubcategoryPopup extends Activity {
      * method for updating the total income on "ViewSubcategoryPopup" user interface.
      */
     public void updateTotalIncome(){
-        //call the update total income method in main activity since the user income text is in main activity layout.
-        MainActivity.getInstance().updateTotalIncome();
+        //update the total income using the user callback in updateTotalIncomeFromActivity method.
+        this.mainUser.updateTotalIncomeFromActivity();
     }
 
 
@@ -117,12 +131,15 @@ public class ViewSubcategoryPopup extends Activity {
      * method for updating the daily budget on "ViewSubcategoryPopup" user interface.
      */
     public void updateDailyBudget(){
-        //call the update daily budget method in main activity since the user daily budget text is in the main activity layout.
-        MainActivity.getInstance().updateDailyBudget();
+        //update the daily budget using the user callback in updateDailyBudgetFromActivity method.
+        this.mainUser.updateDailyBudgetFromActivity();
     }
 
 
-    //controller method for computing the immediate status update.
+    /**
+     * controller method for computing the immediate status update. Executed via OnClick().
+     * @param view
+     */
     public void immediateStatus(View view){
         //get the subcategory input from the user.
         AutoCompleteTextView subcategoryChoice = (AutoCompleteTextView) findViewById(R.id.autoSubcategory);
@@ -139,7 +156,6 @@ public class ViewSubcategoryPopup extends Activity {
                 //update the number of subcategories for the current category. Since a valid subcategory was added
                 updateNumSubcategories(this.category);
 
-                //set the confirmation text. If the user enters multiple decimal points in their input
                 String confirmation = this.user.userImmediateStatus();
                 setContentsOfTextView(R.id.ConfirmationText, confirmation);
 
@@ -169,15 +185,6 @@ public class ViewSubcategoryPopup extends Activity {
     //controller method for closing this activity when the "close" button is clicked.
     public void closeActivity(View view){
         this.finish();
-    }
-
-
-    /* this accessor retrieves input entered on the text view  */
-    private String getInputOfTextField(int id) {
-        View view = findViewById(id);
-        EditText editText = (EditText) view;
-        String input = editText.getText().toString();
-        return input;
     }
 
 

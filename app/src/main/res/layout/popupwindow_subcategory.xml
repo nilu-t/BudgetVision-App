@@ -17,7 +17,7 @@
         android:cropToPadding="false"
         android:onClick="closeActivity"
         android:src="@android:drawable/ic_delete"
-        app:layout_constraintBottom_toTopOf="@+id/categoryText"
+        app:layout_constraintBottom_toTopOf="@+id/categoryAddLabel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.3" />
@@ -27,24 +27,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
         android:layout_marginTop="50dp"
-        android:layout_marginEnd="200dp"
-        android:layout_marginRight="200dp"
-        android:layout_marginBottom="700dp"
         android:text="Category Selected:"
         android:textColor="#882F2F"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.113"
+        android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/categoryText"
+        android:id="@+id/categoryAddLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
@@ -78,7 +71,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
         android:layout_marginTop="50dp"
         android:text="Subcategory:"
         android:textColor="#882F2F"
@@ -92,7 +84,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
         android:layout_marginTop="50dp"
         android:text="Monthly Expense:"
         android:textColor="#882F2F"
@@ -105,9 +96,7 @@
         android:id="@+id/autoSubcategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="38dp"
-        android:layout_marginEnd="35dp"
+        android:layout_marginTop="40dp"
         android:completionThreshold="1"
         android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
         android:hint="Choose a subcategory"
@@ -115,7 +104,7 @@
         android:maxLength="20"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/SubcategoryLabel"
-        app:layout_constraintTop_toBottomOf="@+id/categoryText" />
+        app:layout_constraintTop_toBottomOf="@+id/categoryAddLabel" />
 
     <Button
         android:id="@+id/addSubcategoryBtn"
@@ -136,9 +125,7 @@
         android:id="@+id/monthlyExpenseText"
         android:layout_width="152dp"
         android:layout_height="47dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="27dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="30dp"
         android:digits="0123456789."
         android:ems="10"
         android:inputType="numberDecimal"
