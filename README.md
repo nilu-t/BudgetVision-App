@@ -9,7 +9,6 @@
 - [Features of BudgetVision](#features-of-budgetvision)
 - [Testing procedures](#testing-procedures)
 - [Examples of use](#examples-of-use)
-- [Project status](#project-status)
 
 ## General info
 - This application takes into the account of users income and monthly expenses to create a daily budget and summary of expenses for them. 
@@ -22,7 +21,7 @@
 
 
 ## Technologies used
-- BudgetVision is an Android application created in Java using Android Studio IDE implemented with the Singleton Design Pattern and MCV framework.
+- BudgetVision is an Android application created in Java using Android Studio IDE implemented with the dependency injection design pattern using Dagger2 open source library and MCV framework.
 
 - XML (Extensible Markup Language) is used to create the user interface elements.
 
@@ -42,5 +41,3 @@
 
 ## Examples of use
 
-## Project Status
-- BudgetVision is still under developement and is still being tested in its developement phase. 
