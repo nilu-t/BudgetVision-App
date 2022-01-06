@@ -226,17 +226,6 @@ public class MainActivity extends AppCompatActivity implements UserBudgetCallbac
     }
 
     /**
-     * This method is used in the LoginSuccessfulPopup Class.
-     * This method takes the VALID spreadsheet url from the SettingsFragment.
-     *
-     * @return
-     */
-    @Override
-    public String getSpreadsheetUrl() {
-        return settingsFragment.getSpreadsheetUrl();
-    }
-
-    /**
      * this mutator sets the output label
      *
      * @param id

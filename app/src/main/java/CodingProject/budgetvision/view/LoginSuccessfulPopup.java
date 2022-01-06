@@ -1,6 +1,7 @@
 package CodingProject.budgetvision.view;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -34,11 +35,10 @@ public class LoginSuccessfulPopup extends Activity {
         //the window will be 80% of the screen width and height.
         getWindow().setLayout((int) (width *.9),(int) (height*.8));
 
-        this.userComponent = ((UsersBudgetClass)getApplication()).getAppComponent();
-        this.user = this.userComponent.getMyMainUser();
-
         //the url of the spreadsheet (READ-ONLY)
-        String spreadsheetUrl = this.user.getSpreadsheetUrlFromActivity();
+        Intent i = getIntent();
+
+        String spreadsheetUrl = i.getStringExtra("spreadsheetUrl");
 
         System.out.println("The spreadsheet url is " + spreadsheetUrl);
 

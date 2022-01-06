@@ -859,12 +859,4 @@ public class UsersBudgetClass extends Application{
         return this.userCallback.getTotalIncome();
     }
 
-    /**
-     * This method gets the spreadsheet URL from the main activity.
-     * @return spreadsheet url from the main activity.
-     */
-    public String getSpreadsheetUrlFromActivity() {
-        return this.userCallback.getSpreadsheetUrl();
-    }
-
 }

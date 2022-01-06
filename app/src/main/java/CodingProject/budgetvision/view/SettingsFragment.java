@@ -450,7 +450,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                              * Store the url of the BudgetVision user sheet.
                              * this url will be the pdf link to the BudgetVision user sheet.
                              */
-                            //spreadsheetUrl = userSheet.getSpreadsheetUrl();
                             spreadsheetUrl = "https://docs.google.com/spreadsheets/d/"+userSpreadsheet.getSpreadsheetId()+
                                     "/export"+
                                     "?format=pdf&"+
@@ -504,6 +503,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                  * Start a new activity which tells the user that they are signed in to google successfully.
                  */
                 Intent intent = new Intent(getActivity(), LoginSuccessfulPopup.class);
+                intent.putExtra("spreadsheetUrl",this.spreadsheetUrl);
                 startActivity(intent);
 
 

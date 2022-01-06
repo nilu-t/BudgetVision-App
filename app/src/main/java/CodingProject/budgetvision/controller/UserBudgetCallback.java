@@ -14,8 +14,6 @@ public interface UserBudgetCallback {
 
     void addSubcategoriesToSheet(String categoryName, String subCategoryToAdd, String cost) throws IOException;
 
-    String getSpreadsheetUrl();
-
     void setContentsOfTextView(int id, String newContents);
 
     void clearAllWarningMessage();

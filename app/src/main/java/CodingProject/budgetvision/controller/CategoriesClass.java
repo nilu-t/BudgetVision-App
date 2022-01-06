@@ -91,7 +91,6 @@ public class CategoriesClass{
     //user unique Id from the SettingsFragment.
     String uniqueId;
 
-    UserBudgetComponent userComponent;
     private MainActivity callBack;
 
     /**
@@ -432,7 +431,7 @@ public class CategoriesClass{
                     //add the subcategories and cost to the BudgetVision user google sheet if and only if there are no duplicate subcategories or errors detected.
                     if (!isError && !isDuplicateSubcategory) {
                         try {
-                            userComponent.getMyMainUser().addSubcategoriesToSheetFromActivity(categoryName, subcategory, String.valueOf( (Double.parseDouble(cost) * -1) ) );
+                            callBack.addSubcategoriesToSheet(categoryName, subcategory, String.valueOf( (Double.parseDouble(cost) * -1) ) );
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
