@@ -17,6 +17,8 @@
 
 - The user can sign in to BudgetVision to export the summary of expenses in to their google account google sheet. 
 
+- The user has the option to apply currency conversion to one of the top 25 most traded currencies in the world which is done from using the Bank of Canada website exchange rates. 
+
 - No connecting to bank account. No sharing of private data. 
 
 
