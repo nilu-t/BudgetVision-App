@@ -7,15 +7,13 @@ import javax.inject.Singleton;
 
 import CodingProject.budgetvision.view.MainActivity;
 
-
 /**
  * This class is for creating functionality for the budget categories.
  * All the categories are assumed to be monthly categories. Thus all the expenses for this class are monthly expenses.
  * Categories will be classified as Food, Housing, Lifestyle, etc.
  * In total, so far there are 5 categories. Which are food, housing, lifestyle, commute and recreation.
- * Subcategories are contained in the Category.
+ * Subcategories are contained in each of the categories.
  * This class also adds the error statements to the user if they do not follow conventions of the app.
- * TODO: Possible 6th category called Miscellaneous category?
  */
 @Singleton
 public class CategoriesClass{
@@ -404,7 +402,6 @@ public class CategoriesClass{
         return this.currentExpenses;
     }
 
-
     /**
      * method for removing both the subcategory and removing the expense associated with the subcategory
      * To remove the subcategory the subcategory name and the subcategory expense have to be removed.
@@ -443,9 +440,14 @@ public class CategoriesClass{
 
     }
 
+    /**
+     * This method is used from the UsersBudgetClass to set the currency symbol when the currency changes.
+     * @param currencySymbol
+     */
     public void setCurrencySymbol(String currencySymbol){
         this.currencySymbol = currencySymbol;
     }
+
     /**
      * method for getting status.
      * The status will return all the current subcategories for each category.
@@ -649,7 +651,7 @@ public class CategoriesClass{
      * method for returning the number value representation of commute subcategory costs.
      * @return result
      */
-    public double[] getCommuteCostsNumber(){
+    public double[] getCommuteCostsNumerical(){
         double[] result = getSubcategoryCostsNumber("Commute");
         return result;
     }

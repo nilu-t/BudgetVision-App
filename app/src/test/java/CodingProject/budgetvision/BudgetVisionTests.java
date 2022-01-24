@@ -189,4 +189,47 @@ public class BudgetVisionTests {
 
     }
 
+
+    /**
+     * Testing the output of the linkedList of the recreation subcategory.
+     */
+    @Test
+    public void test_2(){
+
+        //sorting recreation list ascending.
+        System.out.println("------- ascending below");
+        LinkedList <String> recLinkedList = new LinkedList<String>("Netflix Subscription, 20.48");
+        recLinkedList.insertAtHeadAscendingSort("cheap gaming card, 12.24");
+        recLinkedList.insertAtHeadAscendingSort("TV, 120.24");
+        recLinkedList.insertAtHeadAscendingSort("Hulu, 49");
+        recLinkedList.insertAtHeadAscendingSort("Video games, 52.57");
+        recLinkedList.printLinkedList();
+
+        System.out.println("------- descending below");
+        //sorting recreation list descending.
+        recLinkedList = new LinkedList<String>("Netflix Subscription, 20.48");
+        recLinkedList.insertAtHeadDescendingSort("cheap gaming card, 12.24");
+        recLinkedList.insertAtHeadDescendingSort("TV, 120.24");
+        recLinkedList.insertAtHeadDescendingSort("Hulu, 49");
+        recLinkedList.insertAtHeadDescendingSort("Video games, 52.57");
+        recLinkedList.printLinkedList();
+
+        System.out.println("------- alphabetical descending below");
+        recLinkedList = new LinkedList<String>("Netflix Subscription, 20.48");
+        recLinkedList.insertAtHeadAlphaDescendingSort("cheap gaming card, 12.24");
+        recLinkedList.insertAtHeadAlphaDescendingSort("TV, 120.24");
+        recLinkedList.insertAtHeadAlphaDescendingSort("Hulu, 49");
+        recLinkedList.insertAtHeadAlphaDescendingSort("Video games, 52.57");
+        recLinkedList.printLinkedList();
+
+        System.out.println("------- alphabetical ascending below");
+        recLinkedList = new LinkedList<String>("Netflix Subscription, 20.48");
+        recLinkedList.insertAtHeadAlphaAscendingSort("cheap gaming card, 12.24");
+        recLinkedList.insertAtHeadAlphaAscendingSort("TV, 120.24");
+        recLinkedList.insertAtHeadAlphaAscendingSort("Hulu, 49");
+        recLinkedList.insertAtHeadAlphaAscendingSort("Video games, 52.57");
+        recLinkedList.printLinkedList();
+
+    }
+
 }

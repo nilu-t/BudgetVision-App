@@ -71,16 +71,16 @@ import okhttp3.RequestBody;
 public class SettingsFragment extends Fragment implements View.OnClickListener {
 
     //Google sign in client object.
-    GoogleSignInClient mGoogleSignInClient;
+    private GoogleSignInClient mGoogleSignInClient;
 
     //Google credential object. Used to access the google account spreadsheet.
-    GoogleCredentials credentials;
+    private GoogleCredentials credentials;
 
-    Sheets sheetService;
+    private Sheets sheetService;
 
-    Spreadsheet userSpreadsheet;
+    private Spreadsheet userSpreadsheet;
 
-    View myInflatedView; //the inflated view which stores all the contents from this Settings Fragment.
+    private View myInflatedView; //the inflated view which stores all the contents from this Settings Fragment.
 
     private String userUniqueId; //the unique id of the user. If the unique id is null then they have not signed into google via BudgetVision application.
     private String refreshToken; //the refresh token used to authenticate the BudgetVision user to google spreadsheet.

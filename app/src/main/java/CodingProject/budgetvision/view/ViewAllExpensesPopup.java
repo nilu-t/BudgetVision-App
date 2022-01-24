@@ -94,7 +94,6 @@ public class ViewAllExpensesPopup extends Activity implements TextToSpeech.OnIni
     }
 
     //overloaded helper method for sorting the expenses in a specific order.
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortExpenses(String sortType, String categoryToSort){
         this.user.sortAllSubcategoriesByExpense(sortType,categoryToSort);
         String sortedAscendingExpenses = this.user.getUserStatus();

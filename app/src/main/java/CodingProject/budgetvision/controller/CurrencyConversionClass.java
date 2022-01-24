@@ -267,8 +267,7 @@ public class CurrencyConversionClass {
 
     /**
      * The toString() method of the CurrencyConversionClass.java file.
-     *
-     * @return this.formattedCurrencyValue
+     * @return this.afterConversionValue
      **/
     @Override
     public String toString() {

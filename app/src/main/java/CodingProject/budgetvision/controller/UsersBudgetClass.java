@@ -10,9 +10,6 @@ import androidx.annotation.RequiresApi;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -41,30 +38,19 @@ public class UsersBudgetClass extends Application{
     private double dailyBudget; //daily budget for the user.
 
     private CategoriesClass userCategory; //Categories object userCategory, userCategory is a 'dependency' of UsersBudgetClass.
+
     //the transient keyword is used so when the user object is saved as a json it will NOT be serialized.
     private transient CurrencyConversionClass currencyConversionObj; //conversion object from CurrencyConversionClass, currencyConversionObj is a 'dependency' of UsersBudgetClass.
 
     private String currencySymbol;  //the currency symbol according to the country selected by the user.
 
-    private String[] sortedFood; //stores all sorted food subcategories.
-    private String[] sortedHousing; //stores all sorted housing subcategories.
-    private String[] sortedLifestyle; //stores all sorted lifestyle subcategories.
-    private String[] sortedCommute; //stores all sorted commute subcategories.
-    private String[] sortedRecreation; //stores all sorted recreation subcategories.
+    private String[] sortedSubNames; //stores all sorted food subcategories.
+    private double[] sortedSubCosts; //stores all sorted food costs subcategories.
+
     private String categoryName; //stores the current category name.
 
-    private double[] sortedFoodCosts; //stores all sorted food costs subcategories.
-    private double[] sortedHousingCosts; //stores all sorted housing costs subcategories.
-    private double[] sortedLifestyleCosts; //stores all sorted lifestyle costs subcategories.
-    private double[] sortedCommuteCosts; //stores all sorted commute costs subcategories.
-    private double[] sortedRecreationCosts; //stores all sorted recreation costs subcategories.
-
-    //TreeMaps to store the subcategories and subcategory costs. Where the key is subcategory cost and the value is the subcategories,
-    TreeMap <String,Double> foodMap = new TreeMap<>(); //Tree Map for food.
-    TreeMap <String,Double> housingMap = new TreeMap<>(); //Tree Map for housing.
-    TreeMap <String,Double> lifestyleMap = new TreeMap<>(); //Tree Map for lifestyle.
-    TreeMap <String,Double> commuteMap = new TreeMap<>(); //Tree Map for commute.
-    TreeMap <String,Double> recreationMap = new TreeMap<>(); //Tree Map for recreation.
+    //The custom linked list to store the subcategories and subcategory costs in the format "subcategory, cost".
+    private LinkedList <String> linkedList; // each node of the food linked list is expected to be in format "subcategory, cost"
 
     private int NOS; //store the number of subcategories REMAINING for a specific category.
     private String immediateStatus; //the immediate status after adding an expense to a subcategory.
@@ -194,7 +180,7 @@ public class UsersBudgetClass extends Application{
             expenseToRemove = allLifestyle[indexOfSubcategoryToRemove];
         }
         else if(categoryName.equalsIgnoreCase("Commute")  && indexOfSubcategoryToRemove != -1){
-            double [] allCommute = this.userCategory.getCommuteCostsNumber();
+            double [] allCommute = this.userCategory.getCommuteCostsNumerical();
             expenseToRemove = allCommute[indexOfSubcategoryToRemove];
         }
         //remove the subcategory with the category name and the subcategory to remove.
@@ -328,127 +314,227 @@ public class UsersBudgetClass extends Application{
      * @param sortType
      * @param categoryToSort
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortAllSubcategoriesByExpense(String sortType, String categoryToSort) {
 
         if (categoryToSort.equalsIgnoreCase("Food")) {
-            this.sortedFood = userCategory.getFood(); //initially sorted food is all the current food subcategory names.
-            this.sortedFoodCosts = userCategory.getFoodCostsNumerical(); //initially sorted food costs is all the current food subcategory costs.
-            int numFood = sortedFood.length;
+
+            this.sortedSubNames = userCategory.getFood(); //initially sorted food is all the current food subcategory names.
+            this.sortedSubCosts = userCategory.getFoodCostsNumerical(); //initially sorted food costs is all the current food subcategory costs.
 
             if (sortType.equalsIgnoreCase("Ascending Alphabetical Order")) {
-                this.foodMap = new TreeMap<>();
-                sortAlphabeticallyCategoryFromMap(this.sortedFoodCosts,this.sortedFood,this.foodMap,numFood,categoryToSort);
+                sortByLL("Ascending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
             }
+
             else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
-                this.foodMap = new TreeMap<>(Collections.reverseOrder());
-                sortAlphabeticallyCategoryFromMap(this.sortedFoodCosts, this.sortedFood, this.foodMap, numFood, categoryToSort);
+                sortByLL("Descending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
+
+
             }
             else if (sortType.equalsIgnoreCase("Ascending Expenses")) {
-                //TODO
+                sortByLL("Ascending Expenses", this.sortedSubNames, this.sortedSubCosts);
 
             }
             else if (sortType.equalsIgnoreCase("Descending Expenses")) {
-                //TODO
+                sortByLL("Descending Expenses", this.sortedSubNames, this.sortedSubCosts);
 
             }
 
+            //set the sorted subcategory names and cost arrays into the categories class.
+            this.categoriesObject().setSubcategoryNames(this.sortedSubNames, "food");
+            this.categoriesObject().setSubcategoryCosts(this.sortedSubCosts, "food");
 
         } else if (categoryToSort.equalsIgnoreCase("Housing")) {
-            this.sortedHousing = userCategory.getHousing(); //initially sorted housing is all the current housing subcategory names.
-            this.sortedHousingCosts = userCategory.getHousingCostsNumerical(); //initially sorted housing costs is all the current housing subcategory costs.
-            int numHousing = sortedHousing.length;
+            this.sortedSubNames = userCategory.getHousing(); //initially sorted housing is all the current housing subcategory names.
+            this.sortedSubCosts = userCategory.getHousingCostsNumerical(); //initially sorted housing costs is all the current housing subcategory costs.
 
             if (sortType.equalsIgnoreCase("Ascending Alphabetical Order")) {
-                this.housingMap = new TreeMap<>();
-                sortAlphabeticallyCategoryFromMap(this.sortedHousingCosts, this.sortedHousing, this.housingMap, numHousing, categoryToSort);
+                sortByLL("Ascending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
             }
-            else if(sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
-                this.housingMap = new TreeMap<>(Collections.reverseOrder());
-                sortAlphabeticallyCategoryFromMap(this.sortedHousingCosts, this.sortedHousing, this.housingMap, numHousing, categoryToSort);
+
+            else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
+                sortByLL("Descending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
+
+
             }
+            else if (sortType.equalsIgnoreCase("Ascending Expenses")) {
+                sortByLL("Ascending Expenses", this.sortedSubNames, this.sortedSubCosts);
+
+            }
+            else if (sortType.equalsIgnoreCase("Descending Expenses")) {
+                sortByLL("Descending Expenses", this.sortedSubNames, this.sortedSubCosts);
+
+            }
+
+            //set the sorted subcategory names and cost arrays into the categories class.
+            this.categoriesObject().setSubcategoryNames(this.sortedSubNames, "housing");
+            this.categoriesObject().setSubcategoryCosts(this.sortedSubCosts, "housing");
+
         } else if (categoryToSort.equalsIgnoreCase("Commute")) {
-            this.sortedCommute = userCategory.getCommute(); //initially sorted housing is all the current housing subcategory names.
-            this.sortedCommuteCosts = userCategory.getCommuteCostsNumber(); //initially sorted housing costs is all the current housing subcategory costs.
-            int numCommute = sortedCommute.length;
+            this.sortedSubNames = userCategory.getCommute(); //initially sorted commute is all the current commute subcategory names.
+            this.sortedSubCosts = userCategory.getCommuteCostsNumerical(); //initially sorted commute costs is all the current commute subcategory costs.
 
             if (sortType.equalsIgnoreCase("Ascending Alphabetical Order")) {
-                this.housingMap = new TreeMap<>();
-                sortAlphabeticallyCategoryFromMap(this.sortedCommuteCosts, this.sortedCommute, this.commuteMap, numCommute, categoryToSort);
-            } else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
-                this.housingMap = new TreeMap<>(Collections.reverseOrder());
-                sortAlphabeticallyCategoryFromMap(this.sortedCommuteCosts, this.sortedCommute, this.commuteMap, numCommute, categoryToSort);
+                sortByLL("Ascending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
             }
+
+            else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
+                sortByLL("Descending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
+
+
+            }
+            else if (sortType.equalsIgnoreCase("Ascending Expenses")) {
+                sortByLL("Ascending Expenses", this.sortedSubNames, this.sortedSubCosts);
+
+            }
+            else if (sortType.equalsIgnoreCase("Descending Expenses")) {
+                sortByLL("Descending Expenses", this.sortedSubNames, this.sortedSubCosts);
+
+            }
+
+            //set the sorted subcategory names and cost arrays into the categories class.
+            this.categoriesObject().setSubcategoryNames(this.sortedSubNames, "commute");
+            this.categoriesObject().setSubcategoryCosts(this.sortedSubCosts, "commute");
+
         }else if (categoryToSort.equalsIgnoreCase("Lifestyle")) {
-            this.sortedLifestyle = userCategory.getLifestyle(); //initially sorted lifestyle is all the current lifestyle subcategory names.
-            this.sortedLifestyleCosts = userCategory.getLifestyleCostsNumerical(); //initially sorted lifestyle costs is all the current lifestyle subcategory costs.
-            int numLifestyles = sortedLifestyle.length;
+            this.sortedSubNames = userCategory.getLifestyle(); //initially sorted lifestyle is all the current lifestyle subcategory names.
+            this.sortedSubCosts = userCategory.getLifestyleCostsNumerical(); //initially sorted lifestyle costs is all the current lifestyle subcategory costs.
 
             if (sortType.equalsIgnoreCase("Ascending Alphabetical Order")) {
-                this.lifestyleMap = new TreeMap<>();
-                sortAlphabeticallyCategoryFromMap(this.sortedLifestyleCosts, this.sortedLifestyle, this.lifestyleMap, numLifestyles, categoryToSort);
+                sortByLL("Ascending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
             }
-            else if(sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
-                this.lifestyleMap = new TreeMap<>(Collections.reverseOrder());
-                sortAlphabeticallyCategoryFromMap(this.sortedLifestyleCosts, this.sortedLifestyle, this.lifestyleMap, numLifestyles, categoryToSort);
+
+            else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
+                sortByLL("Descending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
+
+
             }
+            else if (sortType.equalsIgnoreCase("Ascending Expenses")) {
+                sortByLL("Ascending Expenses", this.sortedSubNames, this.sortedSubCosts);
+
+            }
+            else if (sortType.equalsIgnoreCase("Descending Expenses")) {
+                sortByLL("Descending Expenses", this.sortedSubNames, this.sortedSubCosts);
+
+            }
+
+            //set the sorted subcategory names and cost arrays into the categories class.
+            this.categoriesObject().setSubcategoryNames(this.sortedSubNames, "lifestyle");
+            this.categoriesObject().setSubcategoryCosts(this.sortedSubCosts, "lifestyle");
 
         } else if (categoryToSort.equalsIgnoreCase("Recreation")) {
-            this.sortedRecreation = userCategory.getRecreation(); //initially sorted recreation is all the current recreation subcategory names.
-            this.sortedRecreationCosts = userCategory.getRecreationCostsNumerical(); //initially sorted recreation costs is all the current recreation subcategory costs.
-            int numRecreation = sortedRecreation.length;
+
+            this.sortedSubNames = userCategory.getRecreation(); //initially sorted recreation is all the current recreation subcategory names.
+            this.sortedSubCosts = userCategory.getRecreationCostsNumerical(); //initially sorted recreation costs is all the current recreation subcategory costs.
 
             if (sortType.equalsIgnoreCase("Ascending Alphabetical Order")) {
-                this.recreationMap = new TreeMap<>();
-                sortAlphabeticallyCategoryFromMap(this.sortedRecreationCosts, this.sortedRecreation, this.recreationMap, numRecreation, categoryToSort);
-            }
-            else if(sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
-                this.recreationMap = new TreeMap<>(Collections.reverseOrder());
-                sortAlphabeticallyCategoryFromMap(this.sortedRecreationCosts, this.sortedRecreation, this.recreationMap, numRecreation, categoryToSort);
+                sortByLL("Ascending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
             }
 
+            else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
+                sortByLL("Descending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
+
+
+            }
+            else if (sortType.equalsIgnoreCase("Ascending Expenses")) {
+                sortByLL("Ascending Expenses", this.sortedSubNames, this.sortedSubCosts);
+
+            }
+            else if (sortType.equalsIgnoreCase("Descending Expenses")) {
+                sortByLL("Descending Expenses", this.sortedSubNames, this.sortedSubCosts);
+
+            }
+
+            //set the sorted subcategory names and cost arrays into the categories class.
+            this.categoriesObject().setSubcategoryNames(this.sortedSubNames, "recreation");
+            this.categoriesObject().setSubcategoryCosts(this.sortedSubCosts, "recreation");
         }
 
     }
 
 
     /**
-     * Helper method to sort the specific category array using its category map. ALPHABETICALLY.
-     * Assuming the Map is Map<String,Double> for the category.
-     * @param categorySubcategoriesCosts
-     * @param categorySubcategory
-     * @param categoryMap
-     * @param numCategorySubcategories
-     * @param categoryName
+     * Helper method to sort the linked list used in method sortAllSubcategoriesByExpense(String sortType, String categoryToSort).
      */
-    public void sortAlphabeticallyCategoryFromMap(double [] categorySubcategoriesCosts, String [] categorySubcategory, TreeMap categoryMap, int numCategorySubcategories, String categoryName){
+    public void sortByLL(String sortType, String [] subcategoryNames, double [] subcategoryCosts){
+        this.linkedList = new LinkedList<>(subcategoryNames[0] + ", " + subcategoryCosts[0]); //dummy head in which the expected format is "subcategory, cost".
 
-        int iter = 0;
+        if(sortType.equals("Ascending Alphabetical Order")) {
 
-        //insert the subcategories & its costs into the category tree.
-        for (int i = 0; i < numCategorySubcategories; i++) {
-            categoryMap.put(categorySubcategory[i], categorySubcategoriesCosts[i]);
+            //load the LL in expected format "subcategory, cost".
+            for (int i = 1; i < subcategoryNames.length; i++) {
+                this.linkedList.insertAtHeadAlphaAscendingSort(subcategoryNames[i] + ", " + subcategoryCosts[i]);
+            }
+
+            Node<String> LLHead = this.linkedList.getHead(); // the linked list head.
+
+            //iterate the LL and set sortedSubNames and sortedSubCosts.
+            int counter = 0;
+            while (LLHead != null) {
+                this.sortedSubNames[counter] = LLHead.toString().substring(0, LLHead.toString().lastIndexOf(','));
+                this.sortedSubCosts[counter] = Double.parseDouble(LLHead.toString().substring(LLHead.toString().lastIndexOf(' ')));
+                LLHead = LLHead.getNextNode();
+                counter++;
+            }
         }
 
-        Map<String,Double> catMap;
-        catMap = categoryMap;
+        else if(sortType.equals("Descending Alphabetical Order")){
 
-        //set the category subcategories & its costs in order using the category tree.
-        for (Map.Entry<String,Double> entry : catMap.entrySet()) {
-            String key = entry.getKey();
-            double value = entry.getValue();
+            //load the LL in expected format "subcategory, cost".
+            for (int i = 1; i < subcategoryNames.length; i++) {
+                this.linkedList.insertAtHeadAlphaDescendingSort(subcategoryNames[i] + ", " + subcategoryCosts[i]);
+            }
 
-            categorySubcategoriesCosts[iter] = value;
-            categorySubcategory[iter] = key;
+            Node<String> LLHead = this.linkedList.getHead(); // the linked list head.
 
-            iter++;
+            //iterate the LL and set sortedSubNames and sortedSubCosts.
+            int counter = 0;
+            while (LLHead != null) {
+                this.sortedSubNames[counter] = LLHead.toString().substring(0, LLHead.toString().lastIndexOf(','));
+                this.sortedSubCosts[counter] = Double.parseDouble(LLHead.toString().substring(LLHead.toString().lastIndexOf(' ')));
+                LLHead = LLHead.getNextNode();
+                counter++;
+            }
         }
+        else if(sortType.equals("Ascending Expenses")){
+            this.linkedList = new LinkedList<>(subcategoryNames[0] + ", " + subcategoryCosts[0]); //dummy head in which the expected format "subcategory, cost".
 
-        categoriesObject().setSubcategoryNames(categorySubcategory, categoryName);
-        categoriesObject().setSubcategoryCosts(categorySubcategoriesCosts, categoryName);
+            //load the LL in expected format "subcategory, cost".
+            for (int i = 1; i < subcategoryNames.length; i++) {
+                this.linkedList.insertAtHeadAscendingSort(subcategoryNames[i] + ", " + subcategoryCosts[i]);
+            }
+
+            Node<String> LLHead = this.linkedList.getHead(); // the linked list head.
+
+            //iterate the LL and set sortedSubNames and sortedSubCosts.
+            int counter = 0;
+            while (LLHead != null) {
+                this.sortedSubNames[counter] = LLHead.toString().substring(0, LLHead.toString().lastIndexOf(','));
+                this.sortedSubCosts[counter] = Double.parseDouble(LLHead.toString().substring(LLHead.toString().lastIndexOf(' ')));
+                LLHead = LLHead.getNextNode();
+                counter++;
+            }
+        }
+        else if(sortType.equals("Descending Expenses")){
+            this.linkedList = new LinkedList<>(subcategoryNames[0] + ", " + subcategoryCosts[0]); //dummy head in which the expected format "subcategory, cost".
+
+            //load the LL in expected format "subcategory, cost".
+            for (int i = 1; i < subcategoryNames.length; i++) {
+                this.linkedList.insertAtHeadDescendingSort(subcategoryNames[i] + ", " + subcategoryCosts[i]);
+            }
+
+            Node<String> LLHead = this.linkedList.getHead(); // the linked list head.
+
+            //iterate the LL and set sortedSubNames and sortedSubCosts.
+            int counter = 0;
+            while (LLHead != null) {
+                this.sortedSubNames[counter] = LLHead.toString().substring(0, LLHead.toString().lastIndexOf(','));
+                this.sortedSubCosts[counter] = Double.parseDouble(LLHead.toString().substring(LLHead.toString().lastIndexOf(' ')));
+                LLHead = LLHead.getNextNode();
+                counter++;
+            }
+        }
 
     }
-
 
     /*
      * implemented binary search to find the least expensive subcategories for current category.
@@ -679,7 +765,7 @@ public class UsersBudgetClass extends Application{
         int NOF = this.userCategory.getNOF();
         double[] allHousingCosts = this.userCategory.getHousingCostsNumerical();
         int NOH = this.userCategory.getNOH();
-        double[] allCommuteCosts = this.userCategory.getCommuteCostsNumber();
+        double[] allCommuteCosts = this.userCategory.getCommuteCostsNumerical();
         int NOC = this.userCategory.getNOC();
         double[] allRecreationCosts = this.userCategory.getRecreationCostsNumerical();
         int NOR = this.userCategory.getNOR();
