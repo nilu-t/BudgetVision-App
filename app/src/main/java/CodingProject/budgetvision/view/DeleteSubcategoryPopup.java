@@ -135,10 +135,16 @@ public class DeleteSubcategoryPopup extends Activity {
         AutoCompleteTextView subcategoryChoice = (AutoCompleteTextView) findViewById(R.id.autoSuggestions2);
         this.subcategoryChosen = subcategoryChoice.getText().toString();
 
-        //remove the user expense.
-        user.removeUserSubcategory(this.categorySelected, this.subcategoryChosen);
+        //remove the user expense if and only if the subcategory is not empty.
+        if(! this.subcategoryChosen.trim().equals("")) {
+            user.removeUserSubcategory(this.categorySelected, this.subcategoryChosen);
 
-        immediateStatusRemoveExpense();
+            immediateStatusRemoveExpense();
+        }
+        else{
+            String confirmation = "No Input For Subcategory To Remove.";
+            setContentsOfTextView(R.id.removeExpenseConfirmationTxt, confirmation);
+        }
 
     }
 

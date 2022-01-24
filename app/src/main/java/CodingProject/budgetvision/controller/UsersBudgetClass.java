@@ -189,7 +189,7 @@ public class UsersBudgetClass extends Application{
         //decrease the total monthly expenses due to removing the subcategory if and only if the subcategory is valid.
         if(!(this.userCategory.isError())) {
             this.totalMonthlyExpenses -= expenseToRemove;
-            this.immediateStatus = "You Have Removed " + subcategoryToRemove + " From " + categoryName + " Category";
+            this.immediateStatus = "You have removed \"" + subcategoryToRemove + "\" from \"" + categoryName + "\" category.";
         }
         else{
             this.immediateStatus =  this.userCategory.getErrorMSG();
@@ -357,7 +357,6 @@ public class UsersBudgetClass extends Application{
             else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
                 sortByLL("Descending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
 
-
             }
             else if (sortType.equalsIgnoreCase("Ascending Expenses")) {
                 sortByLL("Ascending Expenses", this.sortedSubNames, this.sortedSubCosts);
@@ -409,7 +408,6 @@ public class UsersBudgetClass extends Application{
             else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
                 sortByLL("Descending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
 
-
             }
             else if (sortType.equalsIgnoreCase("Ascending Expenses")) {
                 sortByLL("Ascending Expenses", this.sortedSubNames, this.sortedSubCosts);
@@ -435,7 +433,6 @@ public class UsersBudgetClass extends Application{
 
             else if (sortType.equalsIgnoreCase("Descending Alphabetical Order")) {
                 sortByLL("Descending Alphabetical Order", this.sortedSubNames, this.sortedSubCosts);
-
 
             }
             else if (sortType.equalsIgnoreCase("Ascending Expenses")) {
