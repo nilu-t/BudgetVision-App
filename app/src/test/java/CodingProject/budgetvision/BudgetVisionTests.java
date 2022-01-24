@@ -191,7 +191,7 @@ public class BudgetVisionTests {
 
 
     /**
-     * Testing the output of the linkedList of the recreation subcategory.
+     * Testing the output of the linkedList of the recreation subcategory after applying ascending, descending, alphabetical ascending and alphabetical descending sorting.
      */
     @Test
     public void test_2(){
@@ -203,7 +203,9 @@ public class BudgetVisionTests {
         recLinkedList.insertAtHeadAscendingSort("TV, 120.24");
         recLinkedList.insertAtHeadAscendingSort("Hulu, 49");
         recLinkedList.insertAtHeadAscendingSort("Video games, 52.57");
-        recLinkedList.printLinkedList();
+
+        String expectedSort = "cheap gaming card, 12.24\nNetflix Subscription, 20.48\nHulu, 49\nVideo games, 52.57\nTV, 120.24\n";
+        assertEquals(recLinkedList.printLinkedList(),expectedSort);
 
         System.out.println("------- descending below");
         //sorting recreation list descending.
@@ -212,7 +214,9 @@ public class BudgetVisionTests {
         recLinkedList.insertAtHeadDescendingSort("TV, 120.24");
         recLinkedList.insertAtHeadDescendingSort("Hulu, 49");
         recLinkedList.insertAtHeadDescendingSort("Video games, 52.57");
-        recLinkedList.printLinkedList();
+
+        expectedSort = "TV, 120.24\nVideo games, 52.57\nHulu, 49\nNetflix Subscription, 20.48\ncheap gaming card, 12.24\n";
+        assertEquals(recLinkedList.printLinkedList(),expectedSort);
 
         System.out.println("------- alphabetical descending below");
         recLinkedList = new LinkedList<String>("Netflix Subscription, 20.48");
@@ -220,7 +224,9 @@ public class BudgetVisionTests {
         recLinkedList.insertAtHeadAlphaDescendingSort("TV, 120.24");
         recLinkedList.insertAtHeadAlphaDescendingSort("Hulu, 49");
         recLinkedList.insertAtHeadAlphaDescendingSort("Video games, 52.57");
-        recLinkedList.printLinkedList();
+
+        expectedSort = "Video games, 52.57\nTV, 120.24\nNetflix Subscription, 20.48\nHulu, 49\ncheap gaming card, 12.24\n";
+        assertEquals(recLinkedList.printLinkedList(),expectedSort);
 
         System.out.println("------- alphabetical ascending below");
         recLinkedList = new LinkedList<String>("Netflix Subscription, 20.48");

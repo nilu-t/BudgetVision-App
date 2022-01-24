@@ -208,6 +208,7 @@ public class UsersBudgetClass extends Application{
         String [] allLifestyle = this.userCategory.getLifestyle();
         String [] allRecreation = this.userCategory.getRecreation();
 
+        /* Removing all subcategories in each category added by the user. */
         for(int i = 0; i <  allFood.length; i++){
             removeUserSubcategory("Food", allFood[i]);
         }
@@ -223,6 +224,8 @@ public class UsersBudgetClass extends Application{
         for(int i = 0; i <  allRecreation.length; i++){
             removeUserSubcategory("Recreation", allRecreation[i]);
         }
+
+        this.totalInitialIncome = 0; //reset the total initial income added by the user.
 
     }
 

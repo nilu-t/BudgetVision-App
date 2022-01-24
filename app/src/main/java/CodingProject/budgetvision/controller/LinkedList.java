@@ -169,15 +169,21 @@ public class LinkedList <E> {
     /**
      * This method prints each cost node of the linked list. O(n) time complexity.
      */
-    public void printLinkedList(){
+    public String printLinkedList(){
+        StringBuilder strBuilder = new StringBuilder();
+        String str = "";
 
         Node currentNode = head;
 
         while(currentNode != null){
             System.out.println(currentNode.toString());
-
+            strBuilder.append(currentNode.toString()).append("\n");
             currentNode = currentNode.getNextNode();
         }
+
+        str = strBuilder.toString();
+
+        return str;
 
     }
 }
