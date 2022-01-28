@@ -40,7 +40,7 @@ public class LinkedList <E> {
             }
 
             //when iterating the node before insertion is not found because current node data >= data value. The node needs to be added to the front of the linked list.
-            if(head == currentNode){
+            if(this.head == currentNode){
                 temp.setNextNode(currentNode);
                 this.head = temp;
             }
@@ -78,9 +78,9 @@ public class LinkedList <E> {
             }
 
             //the node before insertion is not found. The node needs to be added to the front of the linked list.
-            if(head == currentNode){
+            if(this.head == currentNode){
                 temp.setNextNode(currentNode);
-                head = temp;
+                this.head = temp;
             }
             else {
                 //otherwise the node before the insertion is found.
@@ -113,9 +113,9 @@ public class LinkedList <E> {
             }
 
             //the node before insertion is not found. The node needs to be added to the front of the linked list.
-            if(head == currentNode){
+            if(this.head == currentNode){
                 temp.setNextNode(currentNode);
-                head = temp;
+                this.head = temp;
             }
             else {
                 temp.setNextNode(currentNode); //the temp will reference its next node to the current node.
