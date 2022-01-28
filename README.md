@@ -51,8 +51,8 @@ The app when initially opened for the first time. The "card" elements can be swi
     <td>default app (part two)</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_state1.png" width=270 height=480></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_state2.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/initial_state1.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/initial_state2.png" width=270 height=480></td>
   </tr>
 </table>
 
@@ -69,11 +69,11 @@ The app when initially clicking the food, housing, commute, lifestyle and recrea
     <td>recreation card popup</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_commute.png" width=300 height=400></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_food.png" width=300 height=400></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_housing.png" width=300 height=400></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_lifestyle.png" width=300 height=400></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_recreation.png" width=300 height=400></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/initial_commute.png" width=300 height=400></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/initial_food.png" width=300 height=400></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/initial_housing.png" width=300 height=400></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/initial_lifestyle.png" width=300 height=400></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/initial_recreation.png" width=300 height=400></td>
   </tr>
 </table>
 
@@ -88,10 +88,10 @@ The app when clicking the "home button", "money button", and "settings button" i
     <td>clicked bottom navigation "settings"</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/clicked_home_bottomnav_view.png" width=270   height=480</td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/clicked_money_bottomnav_view.png" width=270 
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/bottomnav/clicked_home_bottomnav_view.png" width=270   height=480</td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/bottomnav/clicked_money_bottomnav_view.png" width=270 
 height=480></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/clicked_settings_bottomnav_view.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/bottomnav/clicked_settings_bottomnav_view.png" width=270 height=480></td>
   </tr>
 </table>
 
@@ -106,9 +106,9 @@ The app when adding/removing income, adding a new expense to an existing subcate
     <td>Remove existing subcategory expense"</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/add_or_remove_income.png" width=270 height=480</td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/additional_expense.png" width=270 height=480></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/remove_expense.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/add_or_remove_income.png" width=270 height=480</td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/additional_expense.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/remove_expense.png" width=270 height=480></td>
   </tr>
 </table>
 
@@ -122,8 +122,8 @@ The app when using google sign-in.
     <td>BudgetVision spreadsheet url displayed</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/google_sign_in_budgetvision.png" width=270   height=480</td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/login_successful_budgetvision.png" width=270 
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/google_sign_in/google_sign_in_budgetvision.png" width=270   height=480</td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/google_sign_in/login_successful_budgetvision.png" width=270 
 height=480></td>
   </tr>
 </table>
@@ -139,9 +139,9 @@ The app after adding a food expense.
     <td>View all expenses after food expense</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/add_food_expense.png" width=270 height=480</td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/after_food_expense.png" width=270 height=480></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/view_all_expenses_after_food_expense.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/added_expenses/add_food_expense.png" width=270 height=480</td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/added_expenses/after_food_expense.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/added_expenses/view_all_expenses_after_food_expense.png" width=270 height=480></td>
   </tr>
 </table>
 
@@ -157,10 +157,10 @@ The app after converting currency from default CAD to EUROPEAN EURO. (after addi
     <td>View all expenses after currency conversion.</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/multiple_expenses.png" width=270 height=480></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/settings_currency_conversion.png" width=270 height=480</td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/after_multiple_expense_conversion.png" width=270 height=480></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/after_currency_conversion.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/added_expenses/multiple_expenses.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/currency_conversion/settings_currency_conversion.png" width=270 height=480</td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/currency_conversion/after_multiple_expense_conversion.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/currency_conversion/after_currency_conversion.png" width=270 height=480></td>
   </tr>
 </table>
 
@@ -175,9 +175,9 @@ The app after adding additional users to keep track of and moniter other individ
     <td> View all expenses after conversion to euro</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/money_fragment.png" width=270 height=480></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/nilu_multiple_expenses.png" width=270 height=480></td>
-    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/nilu_multiple_expenses_euro.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/initial_states/money_fragment.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/added_expenses/nilu_multiple_expenses.png" width=270 height=480></td>
+    <td><img src="https://github.com/nilu-t/BudgetVision-App/blob/main/app/src/main/java/ScreenshotsOfUse/currency_conversion/nilu_multiple_expenses_euro.png" width=270 height=480></td>
   </tr>
 <table>
 
